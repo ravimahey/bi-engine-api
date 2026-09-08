@@ -12,7 +12,8 @@ export class UpdatePasswordDto {
   @MinLength(8)
   @MaxLength(72)
   @Matches(/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, {
-    message: 'password must contain an uppercase letter, a lowercase letter and a digit',
+    message:
+      'password must contain an uppercase letter, a lowercase letter and a digit',
   })
   newPassword: string;
 }

@@ -42,7 +42,7 @@ describe('UsersService', () => {
       firstName: 'Ada',
       lastName: 'Lovelace',
       password: 'Str0ng!Pass',
-      role: UserRole.VIEWER,
+      role: UserRole.BUYER,
     };
 
     it('hashes the password instead of storing it in plain text', async () => {
@@ -134,6 +134,7 @@ describe('UsersService', () => {
         password: 'Str0ng!Pass',
       });
       const [[{ passwordHash }]] = repo.create!.mock.calls as [[User]];
+      if (!passwordHash) throw new Error('expected a password hash');
 
       await expect(
         service.verifyPassword('Str0ng!Pass', passwordHash),

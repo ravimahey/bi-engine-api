@@ -6,4 +6,5 @@ export * from './interceptors';
 export * from './guards';
 export * from './interfaces/api-response.interface';
 export * from './utils/pagination.util';
+export * from './utils/cookie.util';
 export { BaseEntity } from './entities/base.entity';

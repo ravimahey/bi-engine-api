@@ -143,11 +143,21 @@ export class EnvironmentVariables {
 
   @IsString()
   @IsOptional()
-  GOOGLE_CALLBACK_URL: string = 'http://localhost:3000/api/v1/auth/google/callback';
+  GOOGLE_CALLBACK_URL: string =
+    'http://localhost:3000/api/v1/auth/google/callback';
 
   @IsString()
   @IsOptional()
   FRONTEND_URL: string = 'http://localhost:3000';
+
+  @IsString()
+  @IsOptional()
+  COOKIE_DOMAIN: string = '';
+
+  @IsInt()
+  @IsOptional()
+  @Transform(({ value }: { value: unknown }) => parseInt(value as string, 10))
+  OTP_EXPIRES_MINUTES: number = 15;
 
   // ------------------------------------------------------------------- mail
   @IsString()

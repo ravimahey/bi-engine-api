@@ -17,6 +17,7 @@ import {
   AllExceptionsFilter,
   validationExceptionFactory,
 } from '@common/filters';
+import { JwtAuthGuard, RolesGuard } from '@common/guards';
 import {
   LoggingInterceptor,
   TimeoutInterceptor,
@@ -30,6 +31,7 @@ import {
   type AppConfig,
 } from '@config';
 import { DatabaseModule } from '@database/database.module';
+import { AuthModule } from '@modules/auth/auth.module';
 import { HealthModule } from '@modules/health/health.module';
 import { UsersModule } from '@modules/users/users.module';
 
@@ -62,6 +64,7 @@ import { UsersModule } from '@modules/users/users.module';
 
     // ------------------------------------------------------------ feature modules
     HealthModule,
+    AuthModule,
     UsersModule,
   ],
   providers: [
@@ -102,6 +105,8 @@ import { UsersModule } from '@modules/users/users.module';
     },
 
     { provide: APP_GUARD, useClass: ThrottlerGuard },
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: RolesGuard },
 
     {
       provide: APP_FILTER,

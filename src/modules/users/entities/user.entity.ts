@@ -27,18 +27,20 @@ export class User extends BaseEntity {
   /**
    * `select: false` keeps the hash out of every default query; `@Exclude()` is a
    * second guard in case it is explicitly selected (e.g. for login).
+   * Nullable because Google-only accounts never set a password.
    */
   @Exclude()
   @Column({
     type: 'varchar',
     length: 255,
     name: 'password_hash',
+    nullable: true,
     select: false,
   })
-  passwordHash: string;
+  passwordHash: string | null;
 
-  @ApiProperty({ enum: UserRole, example: UserRole.VIEWER })
-  @Column({ type: 'enum', enum: UserRole, default: UserRole.VIEWER })
+  @ApiProperty({ enum: UserRole, example: UserRole.BUYER })
+  @Column({ type: 'enum', enum: UserRole, default: UserRole.BUYER })
   role: UserRole;
 
   @ApiProperty({ example: true })
@@ -50,19 +52,42 @@ export class User extends BaseEntity {
   lastLoginAt: Date | null;
 
   @ApiProperty({ required: false, nullable: true })
-  @Column({ type: 'varchar', length: 255, name: 'google_id', nullable: true, unique: true })
+  @Column({
+    type: 'varchar',
+    length: 255,
+    name: 'google_id',
+    nullable: true,
+    unique: true,
+  })
   googleId: string | null;
 
   @Exclude()
-  @Column({ type: 'varchar', length: 255, name: 'hashed_refresh_token', nullable: true, select: false })
+  @Column({
+    type: 'varchar',
+    length: 255,
+    name: 'hashed_refresh_token',
+    nullable: true,
+    select: false,
+  })
   hashedRefreshToken: string | null;
 
   @Exclude()
-  @Column({ type: 'varchar', length: 255, name: 'reset_password_otp', nullable: true, select: false })
+  @Column({
+    type: 'varchar',
+    length: 255,
+    name: 'reset_password_otp',
+    nullable: true,
+    select: false,
+  })
   resetPasswordOtp: string | null;
 
   @Exclude()
-  @Column({ type: 'timestamptz', name: 'reset_password_otp_expires_at', nullable: true, select: false })
+  @Column({
+    type: 'timestamptz',
+    name: 'reset_password_otp_expires_at',
+    nullable: true,
+    select: false,
+  })
   resetPasswordOtpExpiresAt: Date | null;
 
   @ApiProperty({ example: 'Ada Lovelace' })

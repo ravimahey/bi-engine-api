@@ -10,6 +10,10 @@ export const DEFAULT_PAGE = 1;
 export const DEFAULT_LIMIT = 20;
 export const MAX_LIMIT = 100;
 
+/** httpOnly cookie names carrying the JWT access/refresh tokens. */
+export const ACCESS_TOKEN_COOKIE = 'access_token';
+export const REFRESH_TOKEN_COOKIE = 'refresh_token';
+
 /** Postgres error codes worth mapping to meaningful HTTP statuses. */
 export const PG_ERROR_CODES = {
   UNIQUE_VIOLATION: '23505',

@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import compression from 'compression';
+import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { REQUEST_ID_HEADER } from '@common/constants/app.constants';
@@ -20,6 +21,8 @@ async function bootstrap(): Promise<void> {
   // Security + transport basics.
   app.use(helmet());
   app.use(compression());
+  // Auth strategies read the access/refresh JWTs off httpOnly cookies.
+  app.use(cookieParser());
   app.enableCors({
     origin: config.corsOrigins,
     credentials: true,

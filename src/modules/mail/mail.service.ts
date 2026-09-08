@@ -47,13 +47,16 @@ export class MailService implements OnModuleInit {
       });
 
       this.logger.log(`Password reset email sent to ${to}`);
-      
+
       // If using ethereal email for dev, log the preview URL
       if (mail.host.includes('ethereal')) {
         this.logger.log(`Preview URL: ${nodemailer.getTestMessageUrl(info)}`);
       }
     } catch (error) {
-      this.logger.error(`Failed to send email to ${to}`, (error as Error).stack);
+      this.logger.error(
+        `Failed to send email to ${to}`,
+        (error as Error).stack,
+      );
       throw new Error('Failed to send email');
     }
   }

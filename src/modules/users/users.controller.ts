@@ -11,20 +11,34 @@ import {
   Query,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiConflictResponse,
   ApiCreatedResponse,
+  ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { ApiPaginatedResponse, ResponseMessage } from '@common/decorators';
+import {
+  ApiPaginatedResponse,
+  Roles,
+  ResponseMessage,
+} from '@common/decorators';
 import { IdParamDto } from '@common/dto';
 import { CreateUserDto, QueryUsersDto, UpdateUserDto } from './dto';
-import { User } from './entities/user.entity';
+import { User, UserRole } from './entities/user.entity';
 import { UsersService } from './users.service';
 
+/**
+ * Admin-only user management (list/create/edit/deactivate any account).
+ * A signed-in user's own profile lives under `/auth/me` + `/auth/profile`
+ * instead — see AuthController.
+ */
 @ApiTags('Users')
+@ApiBearerAuth('access-token')
+@Roles(UserRole.ADMIN)
+@ApiForbiddenResponse({ description: 'Admin role required' })
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}

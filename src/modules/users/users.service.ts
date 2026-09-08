@@ -10,11 +10,16 @@ import {
   scrypt as scryptCallback,
   timingSafeEqual,
 } from 'node:crypto';
-import { ILike, Repository, type FindOptionsWhere } from 'typeorm';
+import {
+  ILike,
+  Repository,
+  type FindOptionsSelect,
+  type FindOptionsWhere,
+} from 'typeorm';
 import { paginate } from '@common/utils/pagination.util';
 import type { Paginated } from '@common/interfaces/api-response.interface';
 import { CreateUserDto, QueryUsersDto, UpdateUserDto } from './dto';
-import { User } from './entities/user.entity';
+import { User, UserRole } from './entities/user.entity';
 
 /** Promise wrapper around scrypt — promisify() loses the types on its overloads. */
 const scrypt = (
@@ -27,6 +32,21 @@ const scrypt = (
       error ? reject(error) : resolve(derivedKey),
     );
   });
+
+/** Fields hidden by `select: false` that auth flows need to see explicitly. */
+const SECRET_FIELDS: FindOptionsSelect<User> = {
+  id: true,
+  email: true,
+  firstName: true,
+  lastName: true,
+  role: true,
+  isActive: true,
+  googleId: true,
+  passwordHash: true,
+  hashedRefreshToken: true,
+  resetPasswordOtp: true,
+  resetPasswordOtpExpiresAt: true,
+};
 
 /**
  * Reference service: all persistence lives here, controllers stay thin, and
@@ -103,17 +123,19 @@ export class UsersService {
     return user;
   }
 
-  /** Includes the password hash — for authentication flows only. */
+  /** Includes the password hash + refresh/OTP secrets — for auth flows only. */
   async findByEmailWithSecret(email: string): Promise<User | null> {
     return this.usersRepository.findOne({
       where: { email: email.toLowerCase() },
-      select: {
-        id: true,
-        email: true,
-        role: true,
-        isActive: true,
-        passwordHash: true,
-      },
+      select: SECRET_FIELDS,
+    });
+  }
+
+  /** Same secret-bearing projection as {@link findByEmailWithSecret}, keyed by id. */
+  async findByIdWithSecret(id: string): Promise<User | null> {
+    return this.usersRepository.findOne({
+      where: { id },
+      select: SECRET_FIELDS,
     });
   }
 
@@ -181,7 +203,11 @@ export class UsersService {
     await this.usersRepository.update(id, { hashedRefreshToken: null });
   }
 
-  async setPasswordResetOtp(id: string, hashedOtp: string, expiresAt: Date): Promise<void> {
+  async setPasswordResetOtp(
+    id: string,
+    hashedOtp: string,
+    expiresAt: Date,
+  ): Promise<void> {
     await this.usersRepository.update(id, {
       resetPasswordOtp: hashedOtp,
       resetPasswordOtpExpiresAt: expiresAt,
@@ -195,26 +221,39 @@ export class UsersService {
     });
   }
 
-  async findByEmailWithSecrets(email: string): Promise<User | null> {
-    return this.usersRepository.findOne({
-      where: { email: email.toLowerCase() },
-      select: ['id', 'email', 'role', 'isActive', 'passwordHash', 'hashedRefreshToken', 'resetPasswordOtp', 'resetPasswordOtpExpiresAt'],
-    });
-  }
-
   async findByGoogleId(googleId: string): Promise<User | null> {
     return this.usersRepository.findOne({ where: { googleId } });
   }
 
-  async createFromGoogle(profile: { email: string; firstName: string; lastName: string; googleId: string }): Promise<User> {
+  async createFromGoogle(profile: {
+    email: string;
+    firstName: string;
+    lastName: string;
+    googleId: string;
+    role: UserRole;
+  }): Promise<User> {
     const user = this.usersRepository.create({
       email: profile.email,
       firstName: profile.firstName,
       lastName: profile.lastName,
       googleId: profile.googleId,
-      role: UserRole.BUYER, // Default role for OAuth, can be changed later
+      role: profile.role,
       isActive: true,
+      passwordHash: null,
     });
     return this.usersRepository.save(user);
+  }
+
+  /** Links a Google identity to an existing email/password account (first Google login). */
+  async linkGoogleAccount(id: string, googleId: string): Promise<void> {
+    await this.usersRepository.update(id, { googleId });
+  }
+
+  async updatePassword(id: string, passwordHash: string): Promise<void> {
+    await this.usersRepository.update(id, { passwordHash });
+  }
+
+  async updateLastLoginAt(id: string): Promise<void> {
+    await this.usersRepository.update(id, { lastLoginAt: new Date() });
   }
 }
