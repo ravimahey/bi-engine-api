@@ -5,6 +5,14 @@ export interface JwtPayload {
   sub: string;
   email: string;
   role: UserRole;
+  /**
+   * Random per-token nonce. Without it, two tokens signed for the same user
+   * within the same second are byte-identical (JWT `iat` only has 1s
+   * resolution and the rest of the payload is static) — which would let an
+   * already-rotated refresh token silently "collide" with its replacement
+   * instead of being rejected by the reuse check in `AuthService.refreshSession`.
+   */
+  jti: string;
 }
 
 /** `req.user` after the access-token strategy runs. */

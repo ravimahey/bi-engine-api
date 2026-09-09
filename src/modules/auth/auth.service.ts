@@ -7,7 +7,12 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService, type JwtSignOptions } from '@nestjs/jwt';
-import { createHash, randomInt, timingSafeEqual } from 'node:crypto';
+import {
+  createHash,
+  randomInt,
+  randomUUID,
+  timingSafeEqual,
+} from 'node:crypto';
 import { APP_CONFIG_KEY, type AppConfig } from '@config';
 import { MailService } from '@modules/mail/mail.service';
 import { User } from '@modules/users/entities/user.entity';
@@ -20,10 +25,7 @@ import {
   UpdatePasswordDto,
   UpdateProfileDto,
 } from './dto';
-import type {
-  GoogleProfile,
-  JwtPayload,
-} from './interfaces/jwt-payload.interface';
+import type { GoogleProfile } from './interfaces/jwt-payload.interface';
 
 export interface AuthTokens {
   accessToken: string;
@@ -260,22 +262,26 @@ export class AuthService {
 
   private issueTokens(user: Pick<User, 'id' | 'email' | 'role'>): AuthTokens {
     const { auth } = this.configService.getOrThrow<AppConfig>(APP_CONFIG_KEY);
-    const payload: JwtPayload = {
-      sub: user.id,
-      email: user.email,
-      role: user.role,
-    };
+    const claims = { sub: user.id, email: user.email, role: user.role };
 
-    const accessToken = this.jwtService.sign(payload, {
-      secret: auth.accessSecret,
-      // JWT_*_EXPIRES_IN is a validated env string ('15m', '7d', ...); the
-      // narrower `StringValue` template type can't be inferred from `string`.
-      expiresIn: auth.accessExpiresIn as JwtSignOptions['expiresIn'],
-    });
-    const refreshToken = this.jwtService.sign(payload, {
-      secret: auth.refreshSecret,
-      expiresIn: auth.refreshExpiresIn as JwtSignOptions['expiresIn'],
-    });
+    const accessToken = this.jwtService.sign(
+      { ...claims, jti: randomUUID() },
+      {
+        secret: auth.accessSecret,
+        // JWT_*_EXPIRES_IN is a validated env string ('15m', '7d', ...); the
+        // narrower `StringValue` template type can't be inferred from `string`.
+        expiresIn: auth.accessExpiresIn as JwtSignOptions['expiresIn'],
+      },
+    );
+    // A fresh jti on every issuance guarantees the refresh token is unique
+    // even when re-issued within the same iat second — see JwtPayload.jti.
+    const refreshToken = this.jwtService.sign(
+      { ...claims, jti: randomUUID() },
+      {
+        secret: auth.refreshSecret,
+        expiresIn: auth.refreshExpiresIn as JwtSignOptions['expiresIn'],
+      },
+    );
 
     return { accessToken, refreshToken };
   }
