@@ -4,15 +4,21 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  ParseFilePipeBuilder,
   Patch,
   Post,
   Req,
   Res,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
   ApiOkResponse,
   ApiOperation,
   ApiQuery,
@@ -41,6 +47,9 @@ import type {
   GoogleProfile,
   RefreshPrincipal,
 } from './interfaces/jwt-payload.interface';
+
+const MAX_AVATAR_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
+const AVATAR_MIME_TYPES = /^image\/(jpeg|png|webp|gif)$/;
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -132,13 +141,42 @@ export class AuthController {
   @Patch('profile')
   @ApiBearerAuth('access-token')
   @ResponseMessage('Profile updated successfully')
-  @ApiOperation({ summary: 'Update the signed-in user’s own name/email' })
+  @ApiOperation({
+    summary: 'Update the signed-in user’s own name/email/avatar',
+    description:
+      'Accepts either JSON or multipart/form-data. Send multipart with an ' +
+      '"avatar" file field to also replace the profile picture.',
+  })
+  @ApiConsumes('multipart/form-data', 'application/json')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        email: { type: 'string', format: 'email' },
+        firstName: { type: 'string' },
+        lastName: { type: 'string' },
+        avatar: {
+          type: 'string',
+          format: 'binary',
+          description: 'New profile picture (jpeg/png/webp/gif, max 5MB)',
+        },
+      },
+    },
+  })
+  @UseInterceptors(FileInterceptor('avatar'))
   @ApiOkResponse({ type: User })
   updateProfile(
     @CurrentUser() principal: AuthPrincipal,
     @Body() dto: UpdateProfileDto,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({ fileType: AVATAR_MIME_TYPES })
+        .addMaxSizeValidator({ maxSize: MAX_AVATAR_SIZE_BYTES })
+        .build({ fileIsRequired: false }),
+    )
+    avatar?: Express.Multer.File,
   ): Promise<User> {
-    return this.authService.updateProfile(principal.id, dto);
+    return this.authService.updateProfile(principal.id, dto, avatar);
   }
 
   @Patch('change-password')

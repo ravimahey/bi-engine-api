@@ -180,6 +180,19 @@ export class EnvironmentVariables {
   @IsString()
   @IsOptional()
   SMTP_FROM: string = 'Ordara Analytics <noreply@ordara.com>';
+
+  // --------------------------------------------------------------- cloudinary
+  @IsString()
+  @IsOptional()
+  CLOUDINARY_CLOUD_NAME: string = '';
+
+  @IsString()
+  @IsOptional()
+  CLOUDINARY_API_KEY: string = '';
+
+  @IsString()
+  @IsOptional()
+  CLOUDINARY_API_SECRET: string = '';
 }
 
 export function validateEnv(

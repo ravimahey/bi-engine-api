@@ -15,6 +15,7 @@ import {
 } from 'node:crypto';
 import { APP_CONFIG_KEY, type AppConfig } from '@config';
 import { MailService } from '@modules/mail/mail.service';
+import { UploadService } from '@modules/upload/upload.service';
 import { User } from '@modules/users/entities/user.entity';
 import { UsersService } from '@modules/users/users.service';
 import {
@@ -26,6 +27,9 @@ import {
   UpdateProfileDto,
 } from './dto';
 import type { GoogleProfile } from './interfaces/jwt-payload.interface';
+
+/** Cloudinary folder profile pictures are stored under. */
+const AVATAR_FOLDER = 'ordara-analytics/avatars';
 
 export interface AuthTokens {
   accessToken: string;
@@ -49,6 +53,7 @@ export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly mailService: MailService,
+    private readonly uploadService: UploadService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
@@ -169,8 +174,29 @@ export class AuthService {
     return this.usersService.findOne(userId);
   }
 
-  async updateProfile(userId: string, dto: UpdateProfileDto): Promise<User> {
-    return this.usersService.update(userId, dto);
+  async updateProfile(
+    userId: string,
+    dto: UpdateProfileDto,
+    avatar?: Express.Multer.File,
+  ): Promise<User> {
+    const user = await this.usersService.update(userId, dto);
+    if (!avatar) return user;
+
+    // Fixed public id per user: every re-upload overwrites the same Cloudinary
+    // asset in place, so there is never a stale image left behind to clean up.
+    const uploaded = await this.uploadService.uploadFile(avatar, {
+      folder: AVATAR_FOLDER,
+      publicId: `avatar-${userId}`,
+    });
+
+    await this.usersService.updateAvatar(
+      userId,
+      uploaded.secureUrl,
+      uploaded.publicId,
+    );
+    user.avatarUrl = uploaded.secureUrl;
+
+    return user;
   }
 
   async changePassword(userId: string, dto: UpdatePasswordDto): Promise<void> {
