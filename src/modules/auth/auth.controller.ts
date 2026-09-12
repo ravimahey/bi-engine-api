@@ -19,6 +19,7 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiConsumes,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiQuery,
@@ -197,9 +198,12 @@ export class AuthController {
   @Public()
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
-  @ResponseMessage('If that email is registered, an OTP has been sent')
+  @ResponseMessage('OTP sent to your email')
   @ApiOperation({
     summary: 'Email a one-time password to reset the account password',
+  })
+  @ApiNotFoundResponse({
+    description: 'No account exists with the given email address',
   })
   async forgotPassword(@Body() dto: ForgotPasswordDto): Promise<null> {
     await this.authService.forgotPassword(dto);
