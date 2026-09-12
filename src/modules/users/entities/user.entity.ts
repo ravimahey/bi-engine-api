@@ -71,6 +71,26 @@ export class User extends BaseEntity {
   })
   hashedRefreshToken: string | null;
 
+  @ApiProperty({ required: false, nullable: true })
+  @Column({
+    type: 'varchar',
+    length: 500,
+    name: 'avatar_url',
+    nullable: true,
+  })
+  avatarUrl: string | null;
+
+  /** Cloudinary public id backing `avatarUrl` — needed to replace/delete the asset later. */
+  @Exclude()
+  @Column({
+    type: 'varchar',
+    length: 255,
+    name: 'avatar_public_id',
+    nullable: true,
+    select: false,
+  })
+  avatarPublicId: string | null;
+
   @Exclude()
   @Column({
     type: 'varchar',

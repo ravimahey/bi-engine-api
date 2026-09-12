@@ -29,6 +29,11 @@ export interface AppConfig {
     pass: string;
     from: string;
   };
+  cloudinary: {
+    cloudName: string;
+    apiKey: string;
+    apiSecret: string;
+  };
 }
 
 export const APP_CONFIG_KEY = 'app';
@@ -39,7 +44,7 @@ export default registerAs(APP_CONFIG_KEY, (): AppConfig => {
 
   return {
     env,
-    port: parseInt(process.env.PORT ?? '3000', 10),
+    port: parseInt(process.env.PORT ?? '8000', 10),
     apiPrefix: process.env.API_PREFIX ?? 'api',
     corsOrigins:
       rawOrigins === '*'
@@ -86,6 +91,11 @@ export default registerAs(APP_CONFIG_KEY, (): AppConfig => {
       user: process.env.SMTP_USER ?? '',
       pass: process.env.SMTP_PASS ?? '',
       from: process.env.SMTP_FROM || 'Ordara Analytics <noreply@ordara.com>',
+    },
+    cloudinary: {
+      cloudName: process.env.CLOUDINARY_CLOUD_NAME ?? '',
+      apiKey: process.env.CLOUDINARY_API_KEY ?? '',
+      apiSecret: process.env.CLOUDINARY_API_SECRET ?? '',
     },
   };
 });

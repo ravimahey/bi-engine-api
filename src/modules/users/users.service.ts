@@ -256,4 +256,13 @@ export class UsersService {
   async updateLastLoginAt(id: string): Promise<void> {
     await this.usersRepository.update(id, { lastLoginAt: new Date() });
   }
+
+  /** Persists the Cloudinary result of a profile picture upload. */
+  async updateAvatar(
+    id: string,
+    avatarUrl: string,
+    avatarPublicId: string,
+  ): Promise<void> {
+    await this.usersRepository.update(id, { avatarUrl, avatarPublicId });
+  }
 }
