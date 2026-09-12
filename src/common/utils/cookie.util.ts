@@ -2,6 +2,7 @@ import type { CookieOptions, Response } from 'express';
 import type { AppConfig } from '@config';
 import {
   ACCESS_TOKEN_COOKIE,
+  API_VERSION,
   REFRESH_TOKEN_COOKIE,
 } from '../constants/app.constants';
 
@@ -22,6 +23,11 @@ export const parseDurationMs = (value: string): number => {
   const [, amount, unit] = match;
   return Number(amount) * DURATION_UNITS[unit.toLowerCase()];
 };
+
+/** Scopes the refresh cookie to the auth routes that actually need it, so it
+ * never rides along on unrelated API requests. */
+const authCookiePath = (config: AppConfig): string =>
+  `/${config.apiPrefix}/v${API_VERSION}/auth`;
 
 /**
  * Shared options for both auth cookies. `secure`/`sameSite` are driven by
@@ -44,7 +50,6 @@ export const setAuthCookies = (
   tokens: { accessToken: string; refreshToken: string },
 ): void => {
   const base = baseCookieOptions(config);
-  const authPrefix = `/${config.apiPrefix}/v1/auth`;
 
   res.cookie(ACCESS_TOKEN_COOKIE, tokens.accessToken, {
     ...base,
@@ -53,9 +58,7 @@ export const setAuthCookies = (
 
   res.cookie(REFRESH_TOKEN_COOKIE, tokens.refreshToken, {
     ...base,
-    // Scoped to the auth routes that actually need it (refresh/logout) so it
-    // never rides along on unrelated API requests.
-    path: authPrefix,
+    path: authCookiePath(config),
     maxAge: parseDurationMs(config.auth.refreshExpiresIn),
   });
 };
@@ -63,8 +66,10 @@ export const setAuthCookies = (
 /** Clears both auth cookies on logout — options must mirror how they were set. */
 export const clearAuthCookies = (res: Response, config: AppConfig): void => {
   const base = baseCookieOptions(config);
-  const authPrefix = `/${config.apiPrefix}/v1/auth`;
 
   res.clearCookie(ACCESS_TOKEN_COOKIE, base);
-  res.clearCookie(REFRESH_TOKEN_COOKIE, { ...base, path: authPrefix });
+  res.clearCookie(REFRESH_TOKEN_COOKIE, {
+    ...base,
+    path: authCookiePath(config),
+  });
 };

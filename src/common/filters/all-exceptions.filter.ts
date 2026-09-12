@@ -10,7 +10,7 @@ import { HttpAdapterHost } from '@nestjs/core';
 import type { Request, Response } from 'express';
 import { EntityNotFoundError, QueryFailedError, TypeORMError } from 'typeorm';
 import { PG_ERROR_CODES, REQUEST_ID_HEADER } from '../constants/app.constants';
-import type { ErrorResponse } from '../interfaces/api-response.interface';
+import type { ErrorResponse } from '../types/api-response.interface';
 
 /** Numeric copy of the enum member so status comparisons stay type-safe. */
 const SERVER_ERROR_THRESHOLD: number = HttpStatus.INTERNAL_SERVER_ERROR;

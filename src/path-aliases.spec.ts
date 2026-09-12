@@ -1,6 +1,6 @@
 import { BaseEntity, buildPaginationMeta, IS_PUBLIC_KEY } from '@common';
 import { APP_CONFIG_KEY, Environment } from '@config';
-import { User } from '@modules/users/entities/user.entity';
+import { User } from '@modules/users/entities';
 
 /**
  * Guards the alias configuration: tsconfig `paths`, jest `moduleNameMapper` and

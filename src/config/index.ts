@@ -8,5 +8,6 @@ export {
 export {
   Environment,
   EnvironmentVariables,
+  QuickbooksEnvironment,
   validateEnv,
 } from './env.validation';

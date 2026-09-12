@@ -23,17 +23,13 @@ import {
   TimeoutInterceptor,
   TransformInterceptor,
 } from '@common/interceptors';
-import {
-  APP_CONFIG_KEY,
-  appConfig,
-  databaseConfig,
-  validateEnv,
-  type AppConfig,
-} from '@config';
+import { getAppConfig } from '@common/utils';
+import { appConfig, databaseConfig, validateEnv } from '@config';
 import { DatabaseModule } from '@database/database.module';
 import { AuthModule } from '@modules/auth/auth.module';
 import { HealthModule } from '@modules/health/health.module';
 import { UsersModule } from '@modules/users/users.module';
+import { QuickbooksModule } from '@modules/quickbooks/quickbooks.module';
 
 @Module({
   imports: [
@@ -54,8 +50,7 @@ import { UsersModule } from '@modules/users/users.module';
     ThrottlerModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        const { throttle } =
-          configService.getOrThrow<AppConfig>(APP_CONFIG_KEY);
+        const { throttle } = getAppConfig(configService);
         return [{ ttl: throttle.ttl, limit: throttle.limit }];
       },
     }),
@@ -66,6 +61,7 @@ import { UsersModule } from '@modules/users/users.module';
     HealthModule,
     AuthModule,
     UsersModule,
+    QuickbooksModule,
   ],
   providers: [
     // Order matters: interceptors registered first sit outermost in the chain,
@@ -75,9 +71,7 @@ import { UsersModule } from '@modules/users/users.module';
       provide: APP_INTERCEPTOR,
       inject: [ConfigService],
       useFactory: (configService: ConfigService) =>
-        new TimeoutInterceptor(
-          configService.getOrThrow<AppConfig>(APP_CONFIG_KEY).requestTimeoutMs,
-        ),
+        new TimeoutInterceptor(getAppConfig(configService).requestTimeoutMs),
     },
     {
       provide: APP_INTERCEPTOR,
@@ -117,7 +111,7 @@ import { UsersModule } from '@modules/users/users.module';
       ) =>
         new AllExceptionsFilter(
           httpAdapterHost,
-          configService.getOrThrow<AppConfig>(APP_CONFIG_KEY).isProduction,
+          getAppConfig(configService).isProduction,
         ),
     },
   ],

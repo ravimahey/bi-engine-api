@@ -18,6 +18,11 @@ export enum Environment {
   Production = 'production',
 }
 
+export enum QuickbooksEnvironment {
+  Sandbox = 'sandbox',
+  Production = 'production',
+}
+
 const toBoolean = () =>
   Transform(({ value }: { value: unknown }) => {
     if (typeof value === 'boolean') return value;
@@ -193,6 +198,24 @@ export class EnvironmentVariables {
   @IsString()
   @IsOptional()
   CLOUDINARY_API_SECRET: string = '';
+
+  // --------------------------------------------------------------- quickbooks
+  @IsString()
+  @IsOptional()
+  QUICKBOOKS_CLIENT_ID: string = '';
+
+  @IsString()
+  @IsOptional()
+  QUICKBOOKS_CLIENT_SECRET: string = '';
+
+  @IsEnum(QuickbooksEnvironment)
+  @IsOptional()
+  QUICKBOOKS_ENVIRONMENT: QuickbooksEnvironment = QuickbooksEnvironment.Sandbox;
+
+  @IsString()
+  @IsOptional()
+  QUICKBOOKS_REDIRECT_URI: string =
+    'http://localhost:3000/api/quickbooks/callback';
 }
 
 export function validateEnv(

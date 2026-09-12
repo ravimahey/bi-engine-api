@@ -1,4 +1,4 @@
-import type { UserRole } from '@modules/users/entities/user.entity';
+import type { UserRole } from '@modules/users/entities';
 
 /** Claims embedded in both the access and the refresh JWT. */
 export interface JwtPayload {

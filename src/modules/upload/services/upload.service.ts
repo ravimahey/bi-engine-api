@@ -11,30 +11,8 @@ import {
   type UploadApiOptions,
   type UploadApiResponse,
 } from 'cloudinary';
-import { APP_CONFIG_KEY, type AppConfig } from '@config';
-
-/** Trimmed-down view of Cloudinary's upload response — the fields callers actually need. */
-export interface UploadResult {
-  url: string;
-  secureUrl: string;
-  publicId: string;
-  format: string;
-  resourceType: string;
-  bytes: number;
-  width?: number;
-  height?: number;
-}
-
-export interface UploadFileOptions {
-  /** Cloudinary folder to store the asset under, e.g. 'ordara/avatars'. */
-  folder?: string;
-  /** Fixed public id instead of a Cloudinary-generated one — lets a caller replace an asset in place. */
-  publicId?: string;
-  /** Defaults to 'image'; Cloudinary also accepts 'video' | 'raw' | 'auto'. */
-  resourceType?: UploadApiOptions['resource_type'];
-  /** Overwrite an existing asset at `publicId`. Defaults to true whenever `publicId` is given. */
-  overwrite?: boolean;
-}
+import { getAppConfig } from '@common/utils';
+import type { UploadFileOptions, UploadResult } from '../types';
 
 /**
  * Generic, storage-only wrapper around the Cloudinary SDK. It knows nothing
@@ -49,8 +27,7 @@ export class UploadService implements OnModuleInit {
   constructor(private readonly configService: ConfigService) {}
 
   onModuleInit() {
-    const { cloudinary: config } =
-      this.configService.getOrThrow<AppConfig>(APP_CONFIG_KEY);
+    const { cloudinary: config } = getAppConfig(this.configService);
 
     if (!config.cloudName || !config.apiKey || !config.apiSecret) {
       this.logger.warn(
@@ -97,7 +74,7 @@ export class UploadService implements OnModuleInit {
         },
       );
 
-      const reseee = {
+      return {
         url: response.url,
         secureUrl: response.secure_url,
         publicId: response.public_id,
@@ -107,9 +84,6 @@ export class UploadService implements OnModuleInit {
         width: response.width,
         height: response.height,
       };
-
-      console.log("helo+++++",reseee);
-      return reseee;
     } catch (error) {
       this.logger.error(
         `Cloudinary upload failed: ${(error as Error).message}`,

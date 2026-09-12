@@ -6,6 +6,9 @@ export const RESPONSE_MESSAGE_KEY = 'responseMessage';
 /** Header carrying a per-request correlation id through logs and responses. */
 export const REQUEST_ID_HEADER = 'x-request-id';
 
+/** URI versioning segment (`/v{API_VERSION}/...`) — one source of truth for main.ts and cookie.util. */
+export const API_VERSION = '1';
+
 export const DEFAULT_PAGE = 1;
 export const DEFAULT_LIMIT = 20;
 export const MAX_LIMIT = 100;

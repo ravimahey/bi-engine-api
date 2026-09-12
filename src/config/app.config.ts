@@ -1,5 +1,5 @@
 import { registerAs } from '@nestjs/config';
-import { Environment } from './env.validation';
+import { Environment, QuickbooksEnvironment } from './env.validation';
 
 export interface AppConfig {
   env: Environment;
@@ -33,6 +33,12 @@ export interface AppConfig {
     cloudName: string;
     apiKey: string;
     apiSecret: string;
+  };
+  quickbooks: {
+    clientId: string;
+    clientSecret: string;
+    environment: QuickbooksEnvironment;
+    redirectUri: string;
   };
 }
 
@@ -96,6 +102,16 @@ export default registerAs(APP_CONFIG_KEY, (): AppConfig => {
       cloudName: process.env.CLOUDINARY_CLOUD_NAME ?? '',
       apiKey: process.env.CLOUDINARY_API_KEY ?? '',
       apiSecret: process.env.CLOUDINARY_API_SECRET ?? '',
+    },
+    quickbooks: {
+      clientId: process.env.QUICKBOOKS_CLIENT_ID ?? '',
+      clientSecret: process.env.QUICKBOOKS_CLIENT_SECRET ?? '',
+      environment:
+        (process.env.QUICKBOOKS_ENVIRONMENT as QuickbooksEnvironment) ||
+        QuickbooksEnvironment.Sandbox,
+      redirectUri:
+        process.env.QUICKBOOKS_REDIRECT_URI ||
+        'http://localhost:3000/api/quickbooks/callback',
     },
   };
 });

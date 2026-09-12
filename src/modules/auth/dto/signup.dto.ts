@@ -8,7 +8,7 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { UserRole } from '@modules/users/entities/user.entity';
+import { UserRole } from '@modules/users/entities';
 
 /** Roles a visitor may self-assign on signup. Admin accounts are provisioned separately. */
 export const SELF_SERVICE_ROLES = [UserRole.BUYER, UserRole.SUPPLIER] as const;

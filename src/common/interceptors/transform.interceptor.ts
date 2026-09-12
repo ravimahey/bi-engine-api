@@ -15,7 +15,7 @@ import {
 import {
   isPaginated,
   type SuccessResponse,
-} from '../interfaces/api-response.interface';
+} from '../types/api-response.interface';
 
 /**
  * Wraps every successful handler return value in the standard envelope, so

@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Logger,
   ParseFilePipeBuilder,
   Patch,
   Post,
@@ -29,10 +30,13 @@ import {
 import type { Request, Response } from 'express';
 import { CurrentUser, Public, ResponseMessage } from '@common/decorators';
 import { GoogleOauthGuard, JwtRefreshGuard } from '@common/guards';
-import { clearAuthCookies, setAuthCookies } from '@common/utils/cookie.util';
-import { APP_CONFIG_KEY, type AppConfig } from '@config';
-import { User } from '@modules/users/entities/user.entity';
-import { AuthResult, AuthService } from './auth.service';
+import { clearAuthCookies, getAppConfig, setAuthCookies } from '@common/utils';
+import { User } from '@modules/users/entities';
+import { AuthService } from './services';
+import {
+  GOOGLE_CALLBACK_ERROR_PATH,
+  GOOGLE_CALLBACK_SUCCESS_PATH,
+} from './constants';
 import {
   ForgotPasswordDto,
   LoginDto,
@@ -42,12 +46,13 @@ import {
   UpdatePasswordDto,
   UpdateProfileDto,
 } from './dto';
-import { GoogleInitGuard } from './guards/google-init.guard';
+import { GoogleInitGuard } from './guards';
 import type {
   AuthPrincipal,
+  AuthResult,
   GoogleProfile,
   RefreshPrincipal,
-} from './interfaces/jwt-payload.interface';
+} from './types';
 
 const MAX_AVATAR_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
 const AVATAR_MIME_TYPES = /^image\/(jpeg|png|webp|gif)$/;
@@ -55,6 +60,8 @@ const AVATAR_MIME_TYPES = /^image\/(jpeg|png|webp|gif)$/;
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
+  private readonly logger = new Logger(AuthController.name);
+
   constructor(
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
@@ -126,7 +133,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ): Promise<null> {
     await this.authService.logout(principal.id);
-    clearAuthCookies(res, this.appConfig());
+    clearAuthCookies(res, getAppConfig(this.configService));
     return null;
   }
 
@@ -249,27 +256,24 @@ export class AuthController {
     @Res() res: Response,
   ): Promise<void> {
     const profile = req.user as GoogleProfile;
-    const config = this.appConfig();
+    const config = getAppConfig(this.configService);
 
     try {
       const result = await this.authService.loginWithGoogle(profile);
       setAuthCookies(res, config, result.tokens);
-      res.redirect(`${config.auth.frontendUrl}/auth/callback`);
-    } catch {
-      res.redirect(
-        `${config.auth.frontendUrl}/auth/login?error=google_auth_failed`,
+      res.redirect(`${config.auth.frontendUrl}${GOOGLE_CALLBACK_SUCCESS_PATH}`);
+    } catch (error) {
+      this.logger.warn(
+        `Google OAuth callback failed: ${(error as Error).message}`,
       );
+      res.redirect(`${config.auth.frontendUrl}${GOOGLE_CALLBACK_ERROR_PATH}`);
     }
   }
 
   // ----------------------------------------------------------------- helpers
 
-  private appConfig(): AppConfig {
-    return this.configService.getOrThrow<AppConfig>(APP_CONFIG_KEY);
-  }
-
   private attachSession(res: Response, result: AuthResult): User {
-    setAuthCookies(res, this.appConfig(), result.tokens);
+    setAuthCookies(res, getAppConfig(this.configService), result.tokens);
     return result.user;
   }
 }

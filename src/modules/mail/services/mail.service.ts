@@ -6,11 +6,12 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
-import { APP_CONFIG_KEY, type AppConfig } from '@config';
+import { getAppConfig } from '@common/utils';
 import {
   buildForgotPasswordEmailHtml,
   FORGOT_PASSWORD_EMAIL_SUBJECT,
-} from './templates';
+} from '../templates';
+import { RESET_PASSWORD_PATH } from '../constants';
 
 @Injectable()
 export class MailService implements OnModuleInit {
@@ -20,7 +21,7 @@ export class MailService implements OnModuleInit {
   constructor(private readonly configService: ConfigService) {}
 
   onModuleInit() {
-    const { mail } = this.configService.getOrThrow<AppConfig>(APP_CONFIG_KEY);
+    const { mail } = getAppConfig(this.configService);
 
     this.transporter = nodemailer.createTransport({
       host: mail.host,
@@ -36,13 +37,12 @@ export class MailService implements OnModuleInit {
   }
 
   async sendPasswordResetOtp(to: string, otp: string): Promise<void> {
-    const { mail, auth } =
-      this.configService.getOrThrow<AppConfig>(APP_CONFIG_KEY);
+    const { mail, auth } = getAppConfig(this.configService);
 
     // Convenience link back to the app's reset-password page (prefilled with
     // the email) — the OTP above is still the actual credential; this link
     // carries no token of its own.
-    const resetUrl = `${auth.frontendUrl}/auth/reset-password?email=${encodeURIComponent(to)}`;
+    const resetUrl = `${auth.frontendUrl}${RESET_PASSWORD_PATH}?email=${encodeURIComponent(to)}`;
 
     const html = buildForgotPasswordEmailHtml({
       otp,

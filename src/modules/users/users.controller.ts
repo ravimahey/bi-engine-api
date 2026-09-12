@@ -27,8 +27,8 @@ import {
 } from '@common/decorators';
 import { IdParamDto } from '@common/dto';
 import { CreateUserDto, QueryUsersDto, UpdateUserDto } from './dto';
-import { User, UserRole } from './entities/user.entity';
-import { UsersService } from './users.service';
+import { User, UserRole } from './entities';
+import { UsersService } from './services';
 
 /**
  * Admin-only user management (list/create/edit/deactivate any account).

@@ -8,7 +8,7 @@ import request from 'supertest';
 import type { App } from 'supertest/types';
 import { AppModule } from '../src/app.module';
 import { validationExceptionFactory } from '@common/filters';
-import type { PaginationMeta } from '@common/interfaces/api-response.interface';
+import type { PaginationMeta } from '@common/types';
 
 /** Typed view over `response.body`, which supertest exposes as `any`. */
 interface Envelope<T> {

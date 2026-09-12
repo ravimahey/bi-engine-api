@@ -7,10 +7,15 @@ import {
   TypeOrmHealthIndicator,
 } from '@nestjs/terminus';
 import { Public, ResponseMessage } from '@common/decorators';
+import {
+  HEALTH_DB_TIMEOUT_MS,
+  HEALTH_MAX_HEAP_BYTES,
+  HEALTH_ROUTE_PATH,
+} from './constants';
 
 @ApiTags('Health')
 // Version-neutral and outside the global prefix so probes hit a stable /health.
-@Controller({ path: 'health', version: VERSION_NEUTRAL })
+@Controller({ path: HEALTH_ROUTE_PATH, version: VERSION_NEUTRAL })
 export class HealthController {
   constructor(
     private readonly health: HealthCheckService,
@@ -25,8 +30,9 @@ export class HealthController {
   @ApiOperation({ summary: 'Liveness/readiness probe (DB + memory)' })
   check() {
     return this.health.check([
-      () => this.database.pingCheck('database', { timeout: 3000 }),
-      () => this.memory.checkHeap('memory_heap', 512 * 1024 * 1024),
+      () =>
+        this.database.pingCheck('database', { timeout: HEALTH_DB_TIMEOUT_MS }),
+      () => this.memory.checkHeap('memory_heap', HEALTH_MAX_HEAP_BYTES),
     ]);
   }
 }

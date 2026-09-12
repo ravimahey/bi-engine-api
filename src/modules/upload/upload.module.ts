@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { UploadService } from './upload.service';
+import { UploadService } from './services';
 
 @Module({
   providers: [UploadService],

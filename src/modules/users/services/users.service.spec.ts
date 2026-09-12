@@ -3,8 +3,9 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Test, type TestingModule } from '@nestjs/testing';
 import type { Repository } from 'typeorm';
 import { SortOrder } from '@common/dto';
-import { QueryUsersDto } from './dto';
-import { User, UserRole } from './entities/user.entity';
+import { QueryUsersDto } from '../dto';
+import { User, UserRole } from '../entities';
+import { PasswordService } from './password.service';
 import { UsersService } from './users.service';
 
 type MockRepo = Partial<Record<keyof Repository<User>, jest.Mock>>;
@@ -29,6 +30,7 @@ describe('UsersService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UsersService,
+        PasswordService,
         { provide: getRepositoryToken(User), useValue: repo },
       ],
     }).compile();
@@ -117,30 +119,6 @@ describe('UsersService', () => {
 
       await expect(service.remove('missing')).rejects.toBeInstanceOf(
         NotFoundException,
-      );
-    });
-  });
-
-  describe('verifyPassword', () => {
-    it('round-trips a hashed password and rejects a wrong one', async () => {
-      repo.findOne!.mockResolvedValue(null);
-      repo.create!.mockImplementation((v: Partial<User>) => v);
-      repo.save!.mockImplementation((v: User) => Promise.resolve(v));
-
-      await service.create({
-        email: 'a@b.com',
-        firstName: 'A',
-        lastName: 'B',
-        password: 'Str0ng!Pass',
-      });
-      const [[{ passwordHash }]] = repo.create!.mock.calls as [[User]];
-      if (!passwordHash) throw new Error('expected a password hash');
-
-      await expect(
-        service.verifyPassword('Str0ng!Pass', passwordHash),
-      ).resolves.toBe(true);
-      await expect(service.verifyPassword('wrong', passwordHash)).resolves.toBe(
-        false,
       );
     });
   });

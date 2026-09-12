@@ -1,4 +1,4 @@
-import { UserRole } from '@modules/users/entities/user.entity';
+import { UserRole } from '@modules/users/entities';
 import { SELF_SERVICE_ROLES } from '../dto/signup.dto';
 
 /**

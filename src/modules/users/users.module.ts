@@ -1,15 +1,19 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './entities/user.entity';
+import { User } from './entities';
+import {
+  PasswordService,
+  UserCredentialsService,
+  UsersService,
+} from './services';
 import { UsersController } from './users.controller';
-import { UsersService } from './users.service';
 
 @Module({
   // forFeature registers the repository AND (with autoLoadEntities) the entity.
   imports: [TypeOrmModule.forFeature([User])],
   controllers: [UsersController],
-  providers: [UsersService],
-  // Exported so sibling modules (e.g. auth) can inject UsersService.
-  exports: [UsersService],
+  providers: [UsersService, PasswordService, UserCredentialsService],
+  // Exported so sibling modules (e.g. auth) can inject these.
+  exports: [UsersService, PasswordService, UserCredentialsService],
 })
 export class UsersModule {}

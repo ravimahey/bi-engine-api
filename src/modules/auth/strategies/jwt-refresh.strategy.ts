@@ -3,12 +3,9 @@ import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import type { Request } from 'express';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { REFRESH_TOKEN_COOKIE } from '@common/constants/app.constants';
-import { APP_CONFIG_KEY, type AppConfig } from '@config';
-import type {
-  JwtPayload,
-  RefreshPrincipal,
-} from '../interfaces/jwt-payload.interface';
+import { REFRESH_TOKEN_COOKIE } from '@common/constants';
+import { getAppConfig } from '@common/utils';
+import type { JwtPayload, RefreshPrincipal } from '../types';
 
 const extractRefreshCookie = (req: Request): string | null =>
   (req?.cookies?.[REFRESH_TOKEN_COOKIE] as string | undefined) ?? null;
@@ -24,7 +21,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
   'jwt-refresh',
 ) {
   constructor(configService: ConfigService) {
-    const { auth } = configService.getOrThrow<AppConfig>(APP_CONFIG_KEY);
+    const { auth } = getAppConfig(configService);
 
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([extractRefreshCookie]),

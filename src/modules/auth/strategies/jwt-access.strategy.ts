@@ -3,12 +3,9 @@ import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import type { Request } from 'express';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { ACCESS_TOKEN_COOKIE } from '@common/constants/app.constants';
-import { APP_CONFIG_KEY, type AppConfig } from '@config';
-import type {
-  AuthPrincipal,
-  JwtPayload,
-} from '../interfaces/jwt-payload.interface';
+import { ACCESS_TOKEN_COOKIE } from '@common/constants';
+import { getAppConfig } from '@common/utils';
+import type { AuthPrincipal, JwtPayload } from '../types';
 
 /**
  * Registered as 'jwt' — the strategy `JwtAuthGuard` (common/guards) activates.
@@ -18,7 +15,7 @@ import type {
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(configService: ConfigService) {
-    const { auth } = configService.getOrThrow<AppConfig>(APP_CONFIG_KEY);
+    const { auth } = getAppConfig(configService);
 
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([

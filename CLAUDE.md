@@ -26,20 +26,29 @@ src/
     filters/
     guards/
     interceptors/
-    interfaces/
+    types/
     utils/
   config/        # registerAs() config factories + env validation, nothing domain-specific
   database/      # DatabaseModule, TypeORM CLI data-source, migrations/
   modules/       # One folder per domain/feature
     <feature>/
+      constants/   # named constants for this feature — never a bare literal at a call site
       dto/
       entities/
+      services/    # every @Injectable() for this feature, one class per file
+      types/       # interfaces/type aliases — never declared inline in a service
       <feature>.controller.ts
-      <feature>.service.ts
       <feature>.module.ts
   app.module.ts
   main.ts
 ```
+
+Every feature module puts its `@Injectable()` classes in `services/`, its
+plain constants in `constants/`, and its interfaces/type aliases in `types/`
+— never as a sibling file loose at the module root, and never declared inline
+inside a service or controller. `<feature>.controller.ts` and
+`<feature>.module.ts` are the only TypeScript files that stay directly under
+the module folder; everything else lives in one of its subfolders.
 
 ### Common vs. module — how to decide
 
@@ -52,9 +61,11 @@ module might someday want it — move it to `common` when a second module
 actually needs it, not before.
 
 Inside `src/modules/<feature>`, only add a subfolder when the module needs
-it — `dto/`, `entities/`, `guards/`, `strategies/`, `interfaces/`, `utils/` as
-seen in `auth` and `users`. A module with one entity and a couple of DTOs
-doesn't need every subfolder; don't create empty ceremony.
+it — `constants/`, `dto/`, `entities/`, `guards/`, `services/`, `strategies/`,
+`types/`, `utils/` as seen in `auth`, `users` and `quickbooks`. A module with
+a single service and a couple of DTOs still gets `services/`/`dto/` (those
+two are never skipped), but skip a subfolder that would stay empty — e.g. no
+`types/` folder if the module declares no interfaces of its own.
 
 ## Path aliases — always use them across folder boundaries
 
@@ -67,7 +78,7 @@ import is a lint error, not a style nit. Rules:
   from `common`, or one module importing from another module) → always use
   the alias, never `../../`.
 - Within a single feature folder → relative imports are fine and preferred
-  (`./dto`, `./entities/user.entity`).
+  (`./dto`, `../entities`, `../services` from inside `types/` or `constants/`).
 
 ## Barrel exports (`index.ts`)
 
@@ -78,16 +89,20 @@ barrel:
 export * from './some-file';
 ```
 
-This project already does this in `common/`, `common/decorators`,
-`common/dto`, `common/filters`, `common/guards`, `common/interceptors`,
-`config/`, `modules/auth/dto`, `modules/auth/strategies`,
-`modules/users/dto`, etc. When you add a new file to one of these folders,
-add its `export *` line to that folder's `index.ts` in the same change —
-don't leave a file unreachable through the barrel, and don't reach past a
-barrel with a deep path when a barrel already exists for that folder.
+This project does this in every subfolder of `common/` and of every feature
+module — `constants/`, `decorators/`, `dto/`, `entities/`, `filters/`,
+`guards/`, `interceptors/`, `services/`, `strategies/`, `types/`, `utils/`,
+`config/`, etc. A module's own `<feature>.controller.ts`/`<feature>.module.ts`
+are the only files imported by their exact path (they stay at the module
+root, not in a subfolder, so there's nothing to barrel). When you add a file
+to any subfolder, add its `export *` line to that folder's `index.ts` in the
+same change — don't leave a file unreachable through the barrel, and don't
+reach past a barrel with a deep path when a barrel already exists for that
+folder (e.g. import `User` from `@modules/users/entities`, never
+`@modules/users/entities/user.entity`).
 
-When you create a new module or a new common subfolder that other code will
-import from, create its `index.ts` barrel at the same time.
+When you create a new module or a new subfolder that other code will import
+from, create its `index.ts` barrel in the same change.
 
 ## NestJS conventions
 
@@ -115,8 +130,8 @@ import from, create its `index.ts` barrel at the same time.
 - **Never leak secrets over the wire.** Fields like password hashes or
   refresh tokens are `select: false` on the entity and `@Exclude()`d — follow
   that pattern for any new sensitive column, and only project them in with an
-  explicit `select` (see `SECRET_FIELDS` in `users.service.ts`) inside the
-  service method that specifically needs them.
+  explicit `select` (see `SECRET_FIELDS` in `modules/users/constants`) inside
+  the service method that specifically needs them.
 
 ## Keep files small — break down into focused services
 
@@ -125,8 +140,10 @@ lines** or starts covering more than one responsibility (e.g. user CRUD +
 password hashing + OTP handling), split it:
 
 - Extract a focused, injectable service for the cohesive sub-responsibility
-  (e.g. a `PasswordService`/`TokenService` alongside `UsersService`) and
-  inject it where needed, rather than growing one class further.
+  into the module's `services/` folder (e.g. `PasswordService`/
+  `UserCredentialsService` alongside `UsersService` in
+  `modules/users/services/`) and inject it where needed, rather than growing
+  one class further.
 - A controller that's accumulated many endpoints for genuinely distinct
   sub-resources is a signal to split the module, not just the file.
 - Prefer several small, well-named, single-purpose providers over one large

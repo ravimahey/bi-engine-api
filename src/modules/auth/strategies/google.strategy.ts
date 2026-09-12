@@ -7,15 +7,15 @@ import {
   type Profile,
   type VerifyCallback,
 } from 'passport-google-oauth20';
-import { APP_CONFIG_KEY, type AppConfig } from '@config';
-import type { GoogleProfile } from '../interfaces/jwt-payload.interface';
-import { parseGoogleState } from '../utils/google-state.util';
+import { getAppConfig } from '@common/utils';
+import type { GoogleProfile } from '../types';
+import { parseGoogleState } from '../utils';
 
 /** Registered as 'google' — activated by GoogleOauthGuard on both leg of the OAuth flow. */
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   constructor(configService: ConfigService) {
-    const { auth } = configService.getOrThrow<AppConfig>(APP_CONFIG_KEY);
+    const { auth } = getAppConfig(configService);
 
     super({
       clientID: auth.googleClientId,

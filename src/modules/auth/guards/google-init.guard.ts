@@ -1,7 +1,7 @@
 import { ExecutionContext, Injectable } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import type { Request } from 'express';
-import { buildGoogleState } from '../utils/google-state.util';
+import { buildGoogleState } from '../utils';
 
 /**
  * Only for the route that *starts* the Google flow. Encodes the requested

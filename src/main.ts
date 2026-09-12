@@ -6,9 +6,10 @@ import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
-import { REQUEST_ID_HEADER } from '@common/constants/app.constants';
+import { API_VERSION, REQUEST_ID_HEADER } from '@common/constants';
 import { APP_CONFIG_KEY, type AppConfig } from '@config';
 import { setupSwagger } from '@config/swagger.config';
+import { HEALTH_ROUTE_PATH } from '@modules/health/constants';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -30,8 +31,11 @@ async function bootstrap(): Promise<void> {
   });
 
   // /api/v1/... — the version lives in the URL, the prefix is configurable.
-  app.setGlobalPrefix(config.apiPrefix, { exclude: ['health'] });
-  app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
+  app.setGlobalPrefix(config.apiPrefix, { exclude: [HEALTH_ROUTE_PATH] });
+  app.enableVersioning({
+    type: VersioningType.URI,
+    defaultVersion: API_VERSION,
+  });
 
   // Flush pending work (DB pool, in-flight requests) on SIGTERM/SIGINT.
   app.enableShutdownHooks();
@@ -42,7 +46,9 @@ async function bootstrap(): Promise<void> {
 
   const logger = new Logger('Bootstrap');
   logger.log(`Environment : ${config.env}`);
-  logger.log(`API         : ${await app.getUrl()}/${config.apiPrefix}/v1`);
+  logger.log(
+    `API         : ${await app.getUrl()}/${config.apiPrefix}/v${API_VERSION}`,
+  );
   if (config.swagger.enabled) {
     logger.log(`Swagger     : ${await app.getUrl()}/${config.swagger.path}`);
   }

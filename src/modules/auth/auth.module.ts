@@ -5,8 +5,12 @@ import { MailModule } from '@modules/mail/mail.module';
 import { UploadModule } from '@modules/upload/upload.module';
 import { UsersModule } from '@modules/users/users.module';
 import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
-import { GoogleInitGuard } from './guards/google-init.guard';
+import { GoogleInitGuard } from './guards';
+import {
+  AuthPasswordResetService,
+  AuthService,
+  AuthTokenService,
+} from './services';
 import { GoogleStrategy, JwtRefreshStrategy, JwtStrategy } from './strategies';
 
 @Module({
@@ -20,6 +24,8 @@ import { GoogleStrategy, JwtRefreshStrategy, JwtStrategy } from './strategies';
   controllers: [AuthController],
   providers: [
     AuthService,
+    AuthTokenService,
+    AuthPasswordResetService,
     JwtStrategy,
     JwtRefreshStrategy,
     GoogleStrategy,

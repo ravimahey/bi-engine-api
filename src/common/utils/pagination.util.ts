@@ -1,7 +1,7 @@
 import type {
   Paginated,
   PaginationMeta,
-} from '../interfaces/api-response.interface';
+} from '../types/api-response.interface';
 
 export const buildPaginationMeta = (
   total: number,
