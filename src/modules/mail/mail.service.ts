@@ -1,7 +1,16 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  OnModuleInit,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 import { APP_CONFIG_KEY, type AppConfig } from '@config';
+import {
+  buildForgotPasswordEmailHtml,
+  FORGOT_PASSWORD_EMAIL_SUBJECT,
+} from './templates';
 
 @Injectable()
 export class MailService implements OnModuleInit {
@@ -27,22 +36,25 @@ export class MailService implements OnModuleInit {
   }
 
   async sendPasswordResetOtp(to: string, otp: string): Promise<void> {
-    const { mail } = this.configService.getOrThrow<AppConfig>(APP_CONFIG_KEY);
+    const { mail, auth } =
+      this.configService.getOrThrow<AppConfig>(APP_CONFIG_KEY);
 
-    const html = `
-      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2>Password Reset Request</h2>
-        <p>You requested to reset your password for Ordara Analytics.</p>
-        <p>Your OTP is: <strong style="font-size: 24px;">${otp}</strong></p>
-        <p>This OTP is valid for 15 minutes. If you did not request this, please ignore this email.</p>
-      </div>
-    `;
+    // Convenience link back to the app's reset-password page (prefilled with
+    // the email) — the OTP above is still the actual credential; this link
+    // carries no token of its own.
+    const resetUrl = `${auth.frontendUrl}/auth/reset-password?email=${encodeURIComponent(to)}`;
+
+    const html = buildForgotPasswordEmailHtml({
+      otp,
+      resetUrl,
+      otpExpiresInMinutes: auth.otpExpiresInMinutes,
+    });
 
     try {
       const info = await this.transporter.sendMail({
         from: mail.from,
         to,
-        subject: 'Ordara Analytics - Password Reset OTP',
+        subject: FORGOT_PASSWORD_EMAIL_SUBJECT,
         html,
       });
 
@@ -57,7 +69,9 @@ export class MailService implements OnModuleInit {
         `Failed to send email to ${to}`,
         (error as Error).stack,
       );
-      throw new Error('Failed to send email');
+      throw new InternalServerErrorException(
+        'Failed to send password reset email. Please try again later.',
+      );
     }
   }
 }

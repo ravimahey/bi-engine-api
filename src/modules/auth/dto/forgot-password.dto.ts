@@ -6,7 +6,7 @@ export class ForgotPasswordDto {
   @ApiProperty({
     example: 'ada@example.com',
     description:
-      'Account email. The response is identical whether or not this address is registered, so it can never be used to probe which emails exist.',
+      'Account email. A 404 is returned if no account exists with this address.',
   })
   @IsEmail({}, { message: 'email must be a valid email address' })
   @Transform(({ value }: { value: unknown }) =>

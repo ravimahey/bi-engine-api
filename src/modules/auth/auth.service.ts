@@ -3,6 +3,7 @@ import {
   ForbiddenException,
   Injectable,
   Logger,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -225,13 +226,22 @@ export class AuthService {
   }
 
   /**
-   * Always resolves the same way whether or not the email exists — and even
-   * if delivery fails — so the response can't be used to probe which emails
-   * are registered.
+   * NOTE: by product decision this tells the caller outright when the email
+   * isn't registered, trading away the usual anti-enumeration protection
+   * (returning identical responses either way) for a clearer, user-friendly
+   * error. Every unregistered-email attempt is logged so it can still be
+   * monitored/rate-limited at the infra level if abuse shows up.
    */
   async forgotPassword(dto: ForgotPasswordDto): Promise<void> {
     const user = await this.usersService.findByEmailWithSecret(dto.email);
-    if (!user) return;
+    if (!user) {
+      this.logger.warn(
+        `Forgot-password requested for unregistered email: ${dto.email}`,
+      );
+      throw new NotFoundException(
+        'No account was found with this email address.',
+      );
+    }
 
     const otp = this.generateOtp();
     const { auth } = this.configService.getOrThrow<AppConfig>(APP_CONFIG_KEY);
@@ -245,11 +255,13 @@ export class AuthService {
 
     try {
       await this.mailService.sendPasswordResetOtp(user.email, otp);
+      this.logger.log(`Password reset OTP sent to ${user.email}`);
     } catch (error) {
       this.logger.error(
         `Failed to deliver password reset OTP to ${user.email}`,
         (error as Error).stack,
       );
+      throw error;
     }
   }
 
