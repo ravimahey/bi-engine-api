@@ -216,6 +216,17 @@ export class EnvironmentVariables {
   @IsOptional()
   QUICKBOOKS_REDIRECT_URI: string =
     'http://localhost:3000/api/quickbooks/callback';
+
+  // ------------------------------------------------------------- providers
+  // AES-256-GCM key encrypting every provider_connections access/refresh
+  // token at rest — 32 bytes, hex or base64. The dev-only fallback below
+  // only works because resolveTokenEncryptionKey() accepts it; production
+  // MUST set a real one (`openssl rand -hex 32`) or token encryption is
+  // trivially reversible by anyone with this repo.
+  @IsString()
+  @IsOptional()
+  TOKEN_ENCRYPTION_KEY: string =
+    '0000000000000000000000000000000000000000000000000000000000000000';
 }
 
 export function validateEnv(

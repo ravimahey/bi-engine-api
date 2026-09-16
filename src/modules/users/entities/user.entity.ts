@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
-import { Column, Entity, Index } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '@common/entities';
+import { Organization } from '@modules/organizations/entities';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -42,6 +43,22 @@ export class User extends BaseEntity {
   @ApiProperty({ enum: UserRole, example: UserRole.BUYER })
   @Column({ type: 'enum', enum: UserRole, default: UserRole.BUYER })
   role: UserRole;
+
+  /**
+   * Null until this user creates or joins an organization — signup and
+   * organization creation are deliberately separate steps (see
+   * `OrganizationsService.create`). `SET NULL` rather than `CASCADE`: an
+   * organization being deactivated/deleted should never take the user
+   * account down with it.
+   */
+  @ApiProperty({ format: 'uuid', required: false, nullable: true })
+  @Index('idx_users_organization_id')
+  @Column({ type: 'uuid', name: 'organization_id', nullable: true })
+  organizationId: string | null;
+
+  @ManyToOne(() => Organization, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'organization_id' })
+  organization: Organization | null;
 
   @ApiProperty({ example: true })
   @Column({ type: 'boolean', name: 'is_active', default: true })

@@ -29,7 +29,10 @@ import { DatabaseModule } from '@database/database.module';
 import { AuthModule } from '@modules/auth/auth.module';
 import { HealthModule } from '@modules/health/health.module';
 import { UsersModule } from '@modules/users/users.module';
+import { OrganizationsModule } from '@modules/organizations/organizations.module';
+import { ProvidersModule } from '@modules/providers/providers.module';
 import { QuickbooksModule } from '@modules/quickbooks/quickbooks.module';
+import { RecordsModule } from '@modules/records/records.module';
 
 @Module({
   imports: [
@@ -61,7 +64,10 @@ import { QuickbooksModule } from '@modules/quickbooks/quickbooks.module';
     HealthModule,
     AuthModule,
     UsersModule,
+    OrganizationsModule,
+    ProvidersModule,
     QuickbooksModule,
+    RecordsModule,
   ],
   providers: [
     // Order matters: interceptors registered first sit outermost in the chain,

@@ -136,6 +136,20 @@ export class UsersService {
     this.logger.log(`Soft-deleted user ${id}`);
   }
 
+  /**
+   * One-time link from a user to the organization they just created/joined
+   * — not exposed through `UpdateUserDto`, only ever called from
+   * `OrganizationsService.create` right after the org row itself is saved.
+   */
+  async linkOrganization(
+    userId: string,
+    organizationId: string,
+  ): Promise<User> {
+    const user = await this.findOne(userId);
+    user.organizationId = organizationId;
+    return this.usersRepository.save(user);
+  }
+
   async restore(id: string): Promise<User> {
     const result = await this.usersRepository.restore({ id });
 

@@ -31,5 +31,9 @@ import { GoogleStrategy, JwtRefreshStrategy, JwtStrategy } from './strategies';
     GoogleStrategy,
     GoogleInitGuard,
   ],
+  // AuthTokenService is exported so OrganizationsService can re-issue a
+  // session immediately after linking a self-serve caller to the
+  // organization they just created — see OrganizationsModule.
+  exports: [AuthTokenService],
 })
 export class AuthModule {}

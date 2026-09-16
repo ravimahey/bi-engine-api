@@ -1,0 +1,47 @@
+{
+  "VendorCredit": {
+    "SyncToken": "0", 
+    "domain": "QBO", 
+    "VendorRef": {
+      "name": "Books by Bessie", 
+      "value": "30"
+    }, 
+    "TxnDate": "2014-12-23", 
+    "TotalAmt": 90.0, 
+    "APAccountRef": {
+      "name": "Accounts Payable (A/P)", 
+      "value": "33"
+    }, 
+    "sparse": false, 
+    "Line": [
+      {
+        "DetailType": "AccountBasedExpenseLineDetail", 
+        "Amount": 90.0, 
+        "ProjectRef": {
+          "value": "39298045"
+        }, 
+        "Id": "1", 
+        "AccountBasedExpenseLineDetail": {
+          "TaxCodeRef": {
+            "value": "TAX"
+          }, 
+          "AccountRef": {
+            "name": "Bank Charges", 
+            "value": "8"
+          }, 
+          "BillableStatus": "Billable", 
+          "CustomerRef": {
+            "name": "Amy's Bird Sanctuary", 
+            "value": "1"
+          }
+        }
+      }
+    ], 
+    "Id": "255", 
+    "MetaData": {
+      "CreateTime": "2015-07-28T14:13:30-07:00", 
+      "LastUpdatedTime": "2015-07-28T14:13:30-07:00"
+    }
+  }, 
+  "time": "2015-07-28T14:16:42.709-07:00"
+}

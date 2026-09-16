@@ -40,6 +40,9 @@ export interface AppConfig {
     environment: QuickbooksEnvironment;
     redirectUri: string;
   };
+  security: {
+    tokenEncryptionKey: string;
+  };
 }
 
 export const APP_CONFIG_KEY = 'app';
@@ -112,6 +115,9 @@ export default registerAs(APP_CONFIG_KEY, (): AppConfig => {
       redirectUri:
         process.env.QUICKBOOKS_REDIRECT_URI ||
         'http://localhost:3000/api/quickbooks/callback',
+    },
+    security: {
+      tokenEncryptionKey: process.env.TOKEN_ENCRYPTION_KEY ?? '',
     },
   };
 });

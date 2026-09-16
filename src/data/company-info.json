@@ -1,0 +1,95 @@
+{
+  "success": true,
+  "statusCode": 200,
+  "message": "Success",
+  "timestamp": "2026-09-12T11:48:28.647Z",
+  "path": "/api/v1/quickbooks/company-info",
+  "requestId": "6d3b5213-cb5b-49ab-89a0-a7691af536c7",
+  "data": {
+    "CompanyInfo": {
+      "CompanyName": "Sandbox Company US 5e41",
+      "LegalName": "Sandbox Company US 5e41",
+      "CompanyAddr": {
+        "Id": "1",
+        "Line1": "123 Sierra Way",
+        "City": "San Pablo",
+        "CountrySubDivisionCode": "CA",
+        "PostalCode": "87999"
+      },
+      "CustomerCommunicationAddr": {
+        "Id": "1",
+        "Line1": "123 Sierra Way",
+        "City": "San Pablo",
+        "CountrySubDivisionCode": "CA",
+        "PostalCode": "87999"
+      },
+      "LegalAddr": {
+        "Id": "1",
+        "Line1": "123 Sierra Way",
+        "City": "San Pablo",
+        "CountrySubDivisionCode": "CA",
+        "PostalCode": "87999"
+      },
+      "CustomerCommunicationEmailAddr": {
+        "Address": "mayankbichhawebusiness7@gmail.com"
+      },
+      "PrimaryPhone": {},
+      "CompanyStartDate": "2026-09-11",
+      "FiscalYearStartMonth": "January",
+      "Country": "US",
+      "Email": {
+        "Address": "mayankbichhawebusiness7@gmail.com"
+      },
+      "WebAddr": {},
+      "SupportedLanguages": "en",
+      "DefaultTimeZone": "America/Los_Angeles",
+      "NameValue": [
+        {
+          "Name": "NonTracking",
+          "Value": "false"
+        },
+        {
+          "Name": "IsQbdtMigrated",
+          "Value": "false"
+        },
+        {
+          "Name": "CompanyType",
+          "Value": "Other"
+        },
+        {
+          "Name": "SubscriptionStatus",
+          "Value": "SUBSCRIBED"
+        },
+        {
+          "Name": "OfferingSku",
+          "Value": "QuickBooks Online Plus"
+        },
+        {
+          "Name": "PayrollFeature",
+          "Value": "false"
+        },
+        {
+          "Name": "AccountantFeature",
+          "Value": "false"
+        },
+        {
+          "Name": "ItemCategoriesFeature",
+          "Value": "true"
+        },
+        {
+          "Name": "AssignedTime",
+          "Value": "2026-09-11T22:00:06-07:00"
+        }
+      ],
+      "domain": "QBO",
+      "sparse": false,
+      "Id": "1",
+      "SyncToken": "9",
+      "MetaData": {
+        "CreateTime": "2026-09-11T22:00:06-07:00",
+        "LastUpdatedTime": "2026-09-11T23:41:09-07:00"
+      }
+    },
+    "time": "2026-09-12T04:48:28.409-07:00"
+  }
+}

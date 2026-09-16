@@ -1,0 +1,67 @@
+{
+  "success": true,
+  "statusCode": 200,
+  "message": "Success",
+  "timestamp": "2026-09-12T13:27:08.201Z",
+  "path": "/api/v1/quickbooks/tax-rates",
+  "requestId": "565444de-b92c-44d9-9af2-4bc966613d7f",
+  "data": [
+    {
+      "Name": "AZ State tax",
+      "Description": "Sales Tax",
+      "Active": true,
+      "RateValue": 7.1,
+      "AgencyRef": {
+        "value": "1"
+      },
+      "SpecialTaxType": "NONE",
+      "DisplayType": "ReadOnly",
+      "domain": "QBO",
+      "sparse": false,
+      "Id": "1",
+      "SyncToken": "0",
+      "MetaData": {
+        "CreateTime": "2026-08-15T12:17:04-07:00",
+        "LastUpdatedTime": "2026-08-15T12:17:04-07:00"
+      }
+    },
+    {
+      "Name": "California",
+      "Description": "Sales Tax",
+      "Active": true,
+      "RateValue": 8,
+      "AgencyRef": {
+        "value": "2"
+      },
+      "SpecialTaxType": "NONE",
+      "DisplayType": "ReadOnly",
+      "domain": "QBO",
+      "sparse": false,
+      "Id": "3",
+      "SyncToken": "0",
+      "MetaData": {
+        "CreateTime": "2026-08-15T12:17:04-07:00",
+        "LastUpdatedTime": "2026-08-15T12:17:04-07:00"
+      }
+    },
+    {
+      "Name": "Tucson City",
+      "Description": "Sales Tax",
+      "Active": true,
+      "RateValue": 2,
+      "AgencyRef": {
+        "value": "1"
+      },
+      "SpecialTaxType": "NONE",
+      "DisplayType": "ReadOnly",
+      "domain": "QBO",
+      "sparse": false,
+      "Id": "2",
+      "SyncToken": "0",
+      "MetaData": {
+        "CreateTime": "2026-08-15T12:17:04-07:00",
+        "LastUpdatedTime": "2026-08-15T12:17:04-07:00"
+      }
+    }
+  ]
+}

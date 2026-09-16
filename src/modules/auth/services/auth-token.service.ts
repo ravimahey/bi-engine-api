@@ -72,9 +72,16 @@ export class AuthTokenService {
     await this.userCredentialsService.removeRefreshToken(userId);
   }
 
-  private issueTokens(user: Pick<User, 'id' | 'email' | 'role'>): AuthTokens {
+  private issueTokens(
+    user: Pick<User, 'id' | 'email' | 'role' | 'organizationId'>,
+  ): AuthTokens {
     const { auth } = getAppConfig(this.configService);
-    const claims = { sub: user.id, email: user.email, role: user.role };
+    const claims = {
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+      organizationId: user.organizationId,
+    };
 
     const accessToken = this.jwtService.sign(
       { ...claims, jti: randomUUID() },

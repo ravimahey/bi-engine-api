@@ -1,0 +1,515 @@
+{
+  "success": true,
+  "statusCode": 200,
+  "message": "Success",
+  "timestamp": "2026-09-12T13:23:51.500Z",
+  "path": "/api/v1/quickbooks/changes?entities=Vendor&changedSince=2024-01-01T00%3A00%3A00Z",
+  "requestId": "bc98b763-6763-46be-ba7e-3852c603a81d",
+  "data": {
+    "CDCResponse": [
+      {
+        "QueryResponse": [
+          {
+            "Vendor": [
+              {
+                "BillAddr": {
+                  "Id": "1",
+                  "Line1": "P.O. Box 5",
+                  "City": "Middlefield",
+                  "CountrySubDivisionCode": "CA",
+                  "PostalCode": "94482",
+                  "Lat": "43.8249453",
+                  "Long": "-79.2639122"
+                },
+                "Balance": 241.23,
+                "BillRate": 0,
+                "AcctNum": "7653412",
+                "Vendor1099": true,
+                "CurrencyRef": {
+                  "value": "USD",
+                  "name": "United States Dollar"
+                },
+                "CostRate": 0,
+                "domain": "QBO",
+                "sparse": false,
+                "Id": "31",
+                "SyncToken": "0",
+                "MetaData": {
+                  "CreateTime": "2026-08-09T10:12:02-07:00",
+                  "LastUpdatedTime": "2026-08-13T15:28:48-07:00"
+                },
+                "GivenName": "Nick",
+                "FamilyName": "Brosnahan",
+                "CompanyName": "Brosnahan Insurance Agency",
+                "DisplayName": "Brosnahan Insurance Agency",
+                "PrintOnCheckName": "Brosnahan Insurance Agency",
+                "Active": true,
+                "V4IDPseudonym": "002098c831a2e58e5c4acfa159dab3b6f1dbd0",
+                "PrimaryPhone": {
+                  "FreeFormNumber": "(650) 555-9912"
+                },
+                "Mobile": {
+                  "FreeFormNumber": "(650) 555-9874"
+                },
+                "Fax": {
+                  "FreeFormNumber": "(555) 123-4567"
+                },
+                "WebAddr": {
+                  "URI": "http://BrosnahanInsuranceAgency.org"
+                }
+              },
+              {
+                "BillAddr": {
+                  "Id": "1",
+                  "Line1": "15 Main St.",
+                  "City": "Palo Alto",
+                  "CountrySubDivisionCode": "CA",
+                  "PostalCode": "94303",
+                  "Lat": "37.445013",
+                  "Long": "-122.1391443"
+                },
+                "Balance": 0,
+                "BillRate": 0,
+                "AcctNum": "1345",
+                "Vendor1099": false,
+                "CurrencyRef": {
+                  "value": "USD",
+                  "name": "United States Dollar"
+                },
+                "CostRate": 0,
+                "domain": "QBO",
+                "sparse": false,
+                "Id": "30",
+                "SyncToken": "0",
+                "MetaData": {
+                  "CreateTime": "2026-08-09T10:07:56-07:00",
+                  "LastUpdatedTime": "2026-08-14T11:13:46-07:00"
+                },
+                "GivenName": "Bessie",
+                "FamilyName": "Williams",
+                "CompanyName": "Books by Bessie",
+                "DisplayName": "Books by Bessie",
+                "PrintOnCheckName": "Books by Bessie",
+                "Active": true,
+                "V4IDPseudonym": "002098b29df8345180490893247f672c9e70a2",
+                "PrimaryPhone": {
+                  "FreeFormNumber": "(650) 555-7745"
+                },
+                "PrimaryEmailAddr": {
+                  "Address": "Books@Intuit.com"
+                },
+                "WebAddr": {
+                  "URI": "http://www.booksbybessie.co"
+                }
+              },
+              {
+                "Balance": 755,
+                "BillRate": 0,
+                "Vendor1099": false,
+                "CurrencyRef": {
+                  "value": "USD",
+                  "name": "United States Dollar"
+                },
+                "CostRate": 0,
+                "domain": "QBO",
+                "sparse": false,
+                "Id": "36",
+                "SyncToken": "0",
+                "MetaData": {
+                  "CreateTime": "2026-08-09T10:16:54-07:00",
+                  "LastUpdatedTime": "2026-08-14T11:31:42-07:00"
+                },
+                "CompanyName": "Diego's Road Warrior Bodyshop",
+                "DisplayName": "Diego's Road Warrior Bodyshop",
+                "PrintOnCheckName": "Diego's Road Warrior Bodyshop",
+                "Active": true,
+                "V4IDPseudonym": "002098ba13205a91b54ffc85fe8045e0494659"
+              },
+              {
+                "BillAddr": {
+                  "Id": "3",
+                  "Line1": "1111 Elm St.",
+                  "City": "Middlefield",
+                  "Country": "USA",
+                  "CountrySubDivisionCode": "CA",
+                  "PostalCode": "94482",
+                  "Lat": "37.4604972",
+                  "Long": "-122.1547528"
+                },
+                "Balance": 0,
+                "BillRate": 0,
+                "AcctNum": "2154",
+                "Vendor1099": false,
+                "CurrencyRef": {
+                  "value": "USD",
+                  "name": "United States Dollar"
+                },
+                "CostRate": 0,
+                "domain": "QBO",
+                "sparse": false,
+                "Id": "50",
+                "SyncToken": "1",
+                "MetaData": {
+                  "CreateTime": "2026-08-09T10:40:09-07:00",
+                  "LastUpdatedTime": "2026-08-14T15:10:33-07:00"
+                },
+                "GivenName": "Tania",
+                "FamilyName": "Kronberg",
+                "CompanyName": "Tania's Nursery",
+                "DisplayName": "Tania's Nursery",
+                "PrintOnCheckName": "Tania's Nursery",
+                "Active": true,
+                "V4IDPseudonym": "002098284fba50118b4b179614c4cb128ce230",
+                "PrimaryPhone": {
+                  "FreeFormNumber": "(886) 554-2265"
+                },
+                "PrimaryEmailAddr": {
+                  "Address": "plantqueen@taniasnursery.com"
+                }
+              },
+              {
+                "BillAddr": {
+                  "Id": "3",
+                  "Line1": "4 Main St.",
+                  "City": "Palo Alto",
+                  "CountrySubDivisionCode": "CA",
+                  "PostalCode": "94303",
+                  "Lat": "37.445013",
+                  "Long": "-122.1391443"
+                },
+                "Balance": 86.44,
+                "BillRate": 0,
+                "AcctNum": "00649587213",
+                "Vendor1099": false,
+                "CurrencyRef": {
+                  "value": "USD",
+                  "name": "United States Dollar"
+                },
+                "CostRate": 0,
+                "domain": "QBO",
+                "sparse": false,
+                "Id": "48",
+                "SyncToken": "1",
+                "MetaData": {
+                  "CreateTime": "2026-08-09T10:36:57-07:00",
+                  "LastUpdatedTime": "2026-08-15T13:00:36-07:00"
+                },
+                "CompanyName": "PG&E",
+                "DisplayName": "PG&E",
+                "PrintOnCheckName": "PG&E",
+                "Active": true,
+                "V4IDPseudonym": "002098077d3c74db7d400f85dcf4462498f616",
+                "PrimaryPhone": {
+                  "FreeFormNumber": "(888) 555-9465"
+                },
+                "PrimaryEmailAddr": {
+                  "Address": "utilities@noemail.com"
+                }
+              },
+              {
+                "BillAddr": {
+                  "Id": "1",
+                  "Line1": "42 Main St.",
+                  "City": "Middlefield",
+                  "CountrySubDivisionCode": "CA",
+                  "PostalCode": "94303",
+                  "Lat": "37.445013",
+                  "Long": "-122.1391443"
+                },
+                "Balance": 0,
+                "BillRate": 0,
+                "AcctNum": "556223",
+                "Vendor1099": false,
+                "CurrencyRef": {
+                  "value": "USD",
+                  "name": "United States Dollar"
+                },
+                "CostRate": 0,
+                "domain": "QBO",
+                "sparse": false,
+                "Id": "41",
+                "SyncToken": "0",
+                "MetaData": {
+                  "CreateTime": "2026-08-09T10:26:56-07:00",
+                  "LastUpdatedTime": "2026-08-15T13:01:57-07:00"
+                },
+                "GivenName": "Geoff",
+                "FamilyName": "Hicks",
+                "CompanyName": "Hicks Hardware",
+                "DisplayName": "Hicks Hardware",
+                "PrintOnCheckName": "Hicks Hardware",
+                "Active": true,
+                "V4IDPseudonym": "002098cf566d30bed24769ad9544eac3d82205",
+                "PrimaryPhone": {
+                  "FreeFormNumber": "(650) 554-1973"
+                },
+                "Mobile": {
+                  "FreeFormNumber": "(650) 445-6666"
+                },
+                "WebAddr": {
+                  "URI": "http://Hickshardware.co"
+                }
+              },
+              {
+                "BillAddr": {
+                  "Id": "1",
+                  "Line1": "3948 Elm St.",
+                  "City": "Middlefield",
+                  "CountrySubDivisionCode": "CA",
+                  "PostalCode": "94482",
+                  "Lat": "37.4604972",
+                  "Long": "-122.1547528"
+                },
+                "Balance": 0,
+                "BillRate": 0,
+                "AcctNum": "0078965",
+                "Vendor1099": false,
+                "CurrencyRef": {
+                  "value": "USD",
+                  "name": "United States Dollar"
+                },
+                "CostRate": 0,
+                "domain": "QBO",
+                "sparse": false,
+                "Id": "51",
+                "SyncToken": "0",
+                "MetaData": {
+                  "CreateTime": "2026-08-09T10:42:31-07:00",
+                  "LastUpdatedTime": "2026-08-15T13:06:58-07:00"
+                },
+                "GivenName": "Tim",
+                "FamilyName": "Philip",
+                "CompanyName": "Tim Philip Masonry",
+                "DisplayName": "Tim Philip Masonry",
+                "PrintOnCheckName": "Tim Philip Masonry",
+                "Active": true,
+                "V4IDPseudonym": "002098e35159dc770748359aa6263d5ce38331",
+                "PrimaryPhone": {
+                  "FreeFormNumber": "(800) 556-1254"
+                },
+                "Mobile": {
+                  "FreeFormNumber": "(650) 555-1549"
+                },
+                "PrimaryEmailAddr": {
+                  "Address": "tim.philip@timphilipmasonry.com"
+                },
+                "WebAddr": {
+                  "URI": "http://www.bricksbytim4less.co"
+                }
+              },
+              {
+                "BillAddr": {
+                  "Id": "1",
+                  "Line1": "P.O.Box 357",
+                  "City": "South Orange",
+                  "CountrySubDivisionCode": "NJ",
+                  "PostalCode": "07079",
+                  "Lat": "40.7489277",
+                  "Long": "-74.2609903"
+                },
+                "Balance": 0,
+                "BillRate": 18,
+                "AcctNum": "55642",
+                "Vendor1099": false,
+                "CurrencyRef": {
+                  "value": "USD",
+                  "name": "United States Dollar"
+                },
+                "CostRate": 0,
+                "domain": "QBO",
+                "sparse": false,
+                "Id": "40",
+                "SyncToken": "0",
+                "MetaData": {
+                  "CreateTime": "2026-08-09T10:24:28-07:00",
+                  "LastUpdatedTime": "2026-08-15T13:43:08-07:00"
+                },
+                "GivenName": "Melanie",
+                "FamilyName": "Hall",
+                "CompanyName": "Hall Properties",
+                "DisplayName": "Hall Properties",
+                "PrintOnCheckName": "Hall Properties",
+                "Active": true,
+                "V4IDPseudonym": "0020983517dd21c3d64cf2b072ea49a3c69497",
+                "PrimaryPhone": {
+                  "FreeFormNumber": "(973) 555-3827"
+                },
+                "Mobile": {
+                  "FreeFormNumber": "(973) 888-6222"
+                },
+                "WebAddr": {
+                  "URI": "http://www.hallproperties.intuit.org"
+                }
+              },
+              {
+                "BillAddr": {
+                  "Id": "1",
+                  "Line1": "P.O. Box 147",
+                  "City": "Bayshore",
+                  "CountrySubDivisionCode": "CA",
+                  "PostalCode": "94326",
+                  "Lat": "45.2720537",
+                  "Long": "-79.7935909"
+                },
+                "Balance": 315,
+                "BillRate": 0,
+                "AcctNum": "000005641",
+                "Vendor1099": false,
+                "CurrencyRef": {
+                  "value": "USD",
+                  "name": "United States Dollar"
+                },
+                "CostRate": 0,
+                "domain": "QBO",
+                "sparse": false,
+                "Id": "49",
+                "SyncToken": "0",
+                "MetaData": {
+                  "CreateTime": "2026-08-09T10:38:12-07:00",
+                  "LastUpdatedTime": "2026-08-16T12:36:59-07:00"
+                },
+                "GivenName": "Jenny",
+                "FamilyName": "Robertson",
+                "CompanyName": "Robertson & Associates",
+                "DisplayName": "Robertson & Associates",
+                "PrintOnCheckName": "Robertson & Associates",
+                "Active": true,
+                "V4IDPseudonym": "0020981ac6f5c200f547a68629772b54a93057",
+                "PrimaryPhone": {
+                  "FreeFormNumber": "(650) 557-1111"
+                }
+              },
+              {
+                "BillAddr": {
+                  "Id": "1",
+                  "Line1": "10 Main St.",
+                  "City": "Palo Alto",
+                  "CountrySubDivisionCode": "CA",
+                  "PostalCode": "94303",
+                  "Lat": "37.445013",
+                  "Long": "-122.1391443"
+                },
+                "TermRef": {
+                  "value": "1",
+                  "name": "Due on receipt"
+                },
+                "Balance": 0,
+                "BillRate": 25,
+                "Vendor1099": false,
+                "CurrencyRef": {
+                  "value": "USD",
+                  "name": "United States Dollar"
+                },
+                "CostRate": 0,
+                "domain": "QBO",
+                "sparse": false,
+                "Id": "32",
+                "SyncToken": "0",
+                "MetaData": {
+                  "CreateTime": "2026-08-09T10:13:24-07:00",
+                  "LastUpdatedTime": "2026-08-16T12:55:23-07:00"
+                },
+                "CompanyName": "Cal Telephone",
+                "DisplayName": "Cal Telephone",
+                "PrintOnCheckName": "Cal Telephone",
+                "Active": true,
+                "V4IDPseudonym": "002098979834388b564cb3a30e28536da22b06",
+                "PrimaryPhone": {
+                  "FreeFormNumber": "(650) 555-1616"
+                }
+              },
+              {
+                "BillAddr": {
+                  "Id": "1",
+                  "Line1": "4528 Country Road",
+                  "City": "Middlefield",
+                  "CountrySubDivisionCode": "CA",
+                  "PostalCode": "94303",
+                  "Lat": "37.3752919",
+                  "Long": "-122.1692159"
+                },
+                "Balance": 205,
+                "BillRate": 0,
+                "AcctNum": "32980256",
+                "Vendor1099": false,
+                "CurrencyRef": {
+                  "value": "USD",
+                  "name": "United States Dollar"
+                },
+                "CostRate": 0,
+                "domain": "QBO",
+                "sparse": false,
+                "Id": "46",
+                "SyncToken": "0",
+                "MetaData": {
+                  "CreateTime": "2026-08-09T10:32:55-07:00",
+                  "LastUpdatedTime": "2026-08-16T13:10:36-07:00"
+                },
+                "GivenName": "Julie",
+                "FamilyName": "Norton",
+                "CompanyName": "Norton Lumber and Building Materials",
+                "DisplayName": "Norton Lumber and Building Materials",
+                "PrintOnCheckName": "Norton Lumber and Building Materials",
+                "Active": true,
+                "V4IDPseudonym": "00209897725a3cb39a4f019781071bbf58a79b",
+                "PrimaryPhone": {
+                  "FreeFormNumber": "(650) 363-6578"
+                },
+                "PrimaryEmailAddr": {
+                  "Address": "Materials@intuit.com"
+                }
+              },
+              {
+                "Balance": 0,
+                "BillRate": 0,
+                "Vendor1099": false,
+                "CurrencyRef": {
+                  "value": "USD",
+                  "name": "United States Dollar"
+                },
+                "CostRate": 0,
+                "domain": "QBO",
+                "sparse": false,
+                "Id": "56",
+                "SyncToken": "0",
+                "MetaData": {
+                  "CreateTime": "2026-08-30T14:28:52-07:00",
+                  "LastUpdatedTime": "2026-08-30T14:28:52-07:00"
+                },
+                "DisplayName": "Bob's Burger Joint",
+                "PrintOnCheckName": "Bob's Burger Joint",
+                "Active": true,
+                "V4IDPseudonym": "002098de22376a89c340779f086a7f91449b8f"
+              },
+              {
+                "Balance": 0,
+                "BillRate": 0,
+                "Vendor1099": false,
+                "CurrencyRef": {
+                  "value": "USD",
+                  "name": "United States Dollar"
+                },
+                "CostRate": 0,
+                "domain": "QBO",
+                "sparse": false,
+                "Id": "57",
+                "SyncToken": "0",
+                "MetaData": {
+                  "CreateTime": "2026-08-30T14:29:35-07:00",
+                  "LastUpdatedTime": "2026-08-30T14:29:35-07:00"
+                },
+                "DisplayName": "Squeaky Kleen Car Wash",
+                "PrintOnCheckName": "Squeaky Kleen Car Wash",
+                "Active": true,
+                "V4IDPseudonym": "002098a022c2029911496894d525daf9afd652"
+              }
+            ],
+            "startPosition": 1,
+            "maxResults": 13
+          }
+        ]
+      }
+    ],
+    "time": "2026-09-12T06:23:51.135-07:00"
+  }
+}

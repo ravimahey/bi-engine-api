@@ -8,6 +8,7 @@ export const SECRET_FIELDS: FindOptionsSelect<User> = {
   firstName: true,
   lastName: true,
   role: true,
+  organizationId: true,
   isActive: true,
   googleId: true,
   passwordHash: true,

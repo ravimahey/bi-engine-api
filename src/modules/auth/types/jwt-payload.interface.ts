@@ -6,6 +6,15 @@ export interface JwtPayload {
   email: string;
   role: UserRole;
   /**
+   * Null until the user creates/joins an organization. Embedded the same way
+   * `role` already is — accepted staleness: a still-valid token issued
+   * before the user had an org won't reflect one created in another session
+   * until the token is refreshed/reissued. `OrganizationsService.create`
+   * re-issues a fresh session immediately after linking, so the same tab
+   * picks it up without a re-login.
+   */
+  organizationId: string | null;
+  /**
    * Random per-token nonce. Without it, two tokens signed for the same user
    * within the same second are byte-identical (JWT `iat` only has 1s
    * resolution and the rest of the payload is static) — which would let an
@@ -20,6 +29,7 @@ export interface AuthPrincipal {
   id: string;
   email: string;
   role: UserRole;
+  organizationId: string | null;
 }
 
 /** `req.user` after the refresh-token strategy runs — carries the raw cookie
