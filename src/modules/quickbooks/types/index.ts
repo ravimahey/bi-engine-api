@@ -1,3 +1,4 @@
+export * from './quickbooks-connection-status.interface';
 export * from './quickbooks-fault.interface';
 export * from './quickbooks-query.interface';
 export * from './quickbooks-report.interface';

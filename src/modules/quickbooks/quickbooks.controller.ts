@@ -1,7 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Post,
   Query,
@@ -53,6 +56,31 @@ export class QuickbooksController {
     @Res() res: Response,
   ): void {
     res.redirect(this.quickbooksAuth.getAuthUri(query.organizationId, user));
+  }
+
+  @Get('connection-status')
+  @ApiOperation({
+    summary:
+      'Whether QuickBooks is connected for an organization — must be your own organization, unless admin',
+  })
+  getConnectionStatus(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: QuickbooksConnectQueryDto,
+  ) {
+    return this.quickbooksAuth.getConnectionStatus(query.organizationId, user);
+  }
+
+  @Delete('connection')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary:
+      'Disconnect QuickBooks for an organization — must be your own organization, unless admin',
+  })
+  disconnect(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: QuickbooksConnectQueryDto,
+  ): Promise<void> {
+    return this.quickbooksAuth.disconnect(query.organizationId, user);
   }
 
   // Public: Intuit redirects the browser here with no session of ours to

@@ -1,4 +1,9 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import OAuthClient from 'intuit-oauth';
@@ -6,12 +11,16 @@ import { Repository } from 'typeorm';
 import type { AuthenticatedUser } from '@common/decorators';
 import { assertOwnOrganization, getAppConfig } from '@common/utils';
 import type { ProviderConnection } from '@modules/providers/entities';
-import { ProviderType } from '@modules/providers/entities';
+import { ConnectionStatus, ProviderType } from '@modules/providers/entities';
 import { ProviderConnectionsService } from '@modules/providers/services';
 import { UserRole } from '@modules/users/entities';
 import { QuickbooksCallbackQueryDto } from '../dto';
 import { QuickbooksConnection } from '../entities';
-import type { QuickbooksSession, QuickbooksTokenResponse } from '../types';
+import type {
+  QuickbooksConnectionStatus,
+  QuickbooksSession,
+  QuickbooksTokenResponse,
+} from '../types';
 import { QUICKBOOKS_CONNECTED_PATH, QUICKBOOKS_ERROR_PATH } from '../constants';
 import { buildQuickbooksState, parseQuickbooksState } from '../utils';
 
@@ -171,6 +180,77 @@ export class QuickbooksAuthService {
       realmId: connection.externalRealmId,
       accessToken: connection.accessToken,
     };
+  }
+
+  /**
+   * Whether `organizationId` has ever connected QuickBooks, and if so, its
+   * current state — the read side backing a "Connect" vs. "Sync data" button
+   * in the frontend. Doesn't refresh or otherwise touch tokens; a stale
+   * access token still reads back as `connected: true` here (refreshed only
+   * when actually used, in `getSessionForOrganization`). A non-admin caller
+   * can only check their own organization.
+   */
+  async getConnectionStatus(
+    organizationId: string,
+    currentUser: AuthenticatedUser,
+  ): Promise<QuickbooksConnectionStatus> {
+    if (currentUser.role !== (UserRole.ADMIN as string)) {
+      assertOwnOrganization(currentUser.organizationId, organizationId);
+    }
+
+    const connection = await this.providerConnections.findWithTokensOrNull(
+      organizationId,
+      ProviderType.QUICKBOOKS,
+    );
+
+    if (!connection) {
+      return {
+        provider: ProviderType.QUICKBOOKS,
+        connected: false,
+        status: null,
+        externalRealmId: null,
+        connectedAt: null,
+        lastError: null,
+      };
+    }
+
+    return {
+      provider: ProviderType.QUICKBOOKS,
+      connected: connection.status === ConnectionStatus.CONNECTED,
+      status: connection.status,
+      externalRealmId: connection.externalRealmId,
+      connectedAt: connection.connectedAt,
+      lastError: connection.lastError,
+    };
+  }
+
+  /**
+   * Disconnects `organizationId`'s QuickBooks connection — clears its tokens
+   * and marks it `disconnected` (`ProviderConnectionsService.markDisconnected`)
+   * rather than deleting the row, so historical synced records keep a valid
+   * `sourceConnection` to point back to. A non-admin caller can only
+   * disconnect their own organization.
+   */
+  async disconnect(
+    organizationId: string,
+    currentUser: AuthenticatedUser,
+  ): Promise<void> {
+    if (currentUser.role !== (UserRole.ADMIN as string)) {
+      assertOwnOrganization(currentUser.organizationId, organizationId);
+    }
+
+    const connection = await this.providerConnections.findWithTokensOrNull(
+      organizationId,
+      ProviderType.QUICKBOOKS,
+    );
+
+    if (!connection) {
+      throw new NotFoundException(
+        `QuickBooks is not connected for organization "${organizationId}"`,
+      );
+    }
+
+    await this.providerConnections.markDisconnected(connection.id);
   }
 
   /**
