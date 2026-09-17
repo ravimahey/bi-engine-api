@@ -14,6 +14,7 @@ import {
   QuickbooksReportsService,
   QuickbooksRevenueMapperService,
   QuickbooksService,
+  QuickbooksSyncStatusService,
   QuickbooksTransactionMapperService,
 } from './services';
 
@@ -49,6 +50,7 @@ import {
     QuickbooksTransactionMapperService,
     QuickbooksRevenueMapperService,
     QuickbooksPollingService,
+    QuickbooksSyncStatusService,
   ],
 })
 export class QuickbooksModule {}

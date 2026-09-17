@@ -70,6 +70,19 @@ export class ProviderConnectionsService {
     });
   }
 
+  /**
+   * Same as `findWithTokensOrNull`, but leaves the (`select: false`) token
+   * columns unselected — for callers that only need the connection's
+   * id/status, e.g. a sync-status read, that have no business loading
+   * encrypted tokens into memory just to report freshness.
+   */
+  async findOrNull(
+    organizationId: string,
+    provider: ProviderType,
+  ): Promise<ProviderConnection | null> {
+    return this.connections.findOne({ where: { organizationId, provider } });
+  }
+
   async findById(id: string): Promise<ProviderConnection> {
     const connection = await this.connections.findOne({ where: { id } });
 

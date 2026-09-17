@@ -2,3 +2,8 @@ export * from './records.service';
 export * from './records-revenue.service';
 export * from './records-filter.service';
 export * from './records-lookup.service';
+export * from './records-query.service';
+export * from './records-revenue-query.service';
+export * from './records-transactions-query.service';
+export * from './records-revenue-transactions-query.service';
+export * from './records-revenue-filter.service';

@@ -13,12 +13,7 @@ import {
 import { PaginationQueryDto } from '@common/dto';
 import { ExpenseTransactionType, SourceSystem } from '../entities';
 import { EXPENSE_LINE_SORTABLE_FIELDS } from '../constants';
-
-const toUuidArray = ({ value }: { value: unknown }): unknown =>
-  typeof value === 'string' ? value.split(',').map((v) => v.trim()) : value;
-
-const toNumber = ({ value }: { value: unknown }): unknown =>
-  value === undefined || value === '' ? value : Number(value);
+import { toNumber, toUuidArray } from '../utils';
 
 /**
  * Advanced filter for `ExpenseTransactionLine` — the dimensions the guide's

@@ -4,3 +4,5 @@ export * from './quickbooks-cdc-query.dto';
 export * from './quickbooks-report-params.dto';
 export * from './quickbooks-report-query.dto';
 export * from './quickbooks-poll.dto';
+export * from './quickbooks-sync-status-query.dto';
+export * from './quickbooks-sync-status-response.dto';

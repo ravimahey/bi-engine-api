@@ -24,6 +24,13 @@ export class SyncCursorsService {
     });
   }
 
+  /** Every checkpoint row for one connection, across every entity type — one query, for a sync-status read rather than one `get()` per entity. */
+  async findAllForConnection(
+    providerConnectionId: string,
+  ): Promise<SyncCursor[]> {
+    return this.cursors.find({ where: { providerConnectionId } });
+  }
+
   async upsert(
     providerConnectionId: string,
     entityType: string,

@@ -90,6 +90,17 @@ export type QuickbooksPollEntity =
 export const QUICKBOOKS_POLL_MASTER_DATA_ENTITIES: readonly QuickbooksPollEntity[] =
   ['Vendor', 'Account', 'Item', 'TaxRate', 'TaxCode', 'Customer'];
 
+/**
+ * Every entity type ever written to `sync_cursors` for a QuickBooks
+ * connection — `CompanyInfo` (Step 0, synced outside
+ * `QUICKBOOKS_POLL_ENTITY_ORDER`) plus the full poll order.
+ * `GET /quickbooks/sync-status` reports one row per entry here, even for
+ * entities this connection has never synced yet.
+ */
+export const QUICKBOOKS_SYNC_STATUS_ENTITIES: readonly (
+  QuickbooksPollEntity | 'CompanyInfo'
+)[] = ['CompanyInfo', ...QUICKBOOKS_POLL_ENTITY_ORDER];
+
 /** Width of one in-memory date chunk. Change here to move the default to day/week — no other code needs to change. */
 export type QuickbooksDateChunkUnit = 'day' | 'week' | 'month';
 export const QUICKBOOKS_POLL_CHUNK_UNIT: QuickbooksDateChunkUnit = 'month';

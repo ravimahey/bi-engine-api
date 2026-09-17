@@ -6,3 +6,4 @@ export * from './quickbooks-master-data-mapper.service';
 export * from './quickbooks-transaction-mapper.service';
 export * from './quickbooks-revenue-mapper.service';
 export * from './quickbooks-polling.service';
+export * from './quickbooks-sync-status.service';

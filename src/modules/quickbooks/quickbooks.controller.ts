@@ -11,7 +11,7 @@ import {
   Req,
   Res,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
 import {
   CurrentUser,
@@ -27,12 +27,15 @@ import {
   QuickbooksPollDto,
   QuickbooksReportParamsDto,
   QuickbooksReportQueryDto,
+  QuickbooksSyncStatusQueryDto,
+  QuickbooksSyncStatusResultDto,
 } from './dto';
 import {
   QuickbooksAuthService,
   QuickbooksPollingService,
   QuickbooksReportsService,
   QuickbooksService,
+  QuickbooksSyncStatusService,
 } from './services';
 
 @ApiTags('QuickBooks')
@@ -43,6 +46,7 @@ export class QuickbooksController {
     private readonly quickbooksService: QuickbooksService,
     private readonly quickbooksReports: QuickbooksReportsService,
     private readonly quickbooksPolling: QuickbooksPollingService,
+    private readonly quickbooksSyncStatus: QuickbooksSyncStatusService,
   ) {}
 
   @Get('connect')
@@ -211,6 +215,19 @@ export class QuickbooksController {
   })
   poll(@CurrentUser() user: AuthenticatedUser, @Body() dto: QuickbooksPollDto) {
     return this.quickbooksPolling.poll(dto, user);
+  }
+
+  @Get('sync-status')
+  @ApiOperation({
+    summary:
+      'Last-synced timestamp + cursor per QuickBooks entity (Vendor, Bill, Invoice, …), so the frontend can show how fresh the canonical data is — must be your own organization, unless admin',
+  })
+  @ApiOkResponse({ type: QuickbooksSyncStatusResultDto })
+  getSyncStatus(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: QuickbooksSyncStatusQueryDto,
+  ) {
+    return this.quickbooksSyncStatus.getSyncStatus(query, user);
   }
 
   @Roles(UserRole.ADMIN)

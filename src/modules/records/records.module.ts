@@ -17,11 +17,18 @@ import {
   VendorCredit,
 } from './entities';
 import { RecordsController } from './records.controller';
+import { RecordsMasterDataController } from './records-master-data.controller';
+import { RecordsRevenueController } from './records-revenue.controller';
 import {
   RecordsFilterService,
   RecordsLookupService,
+  RecordsQueryService,
+  RecordsRevenueFilterService,
+  RecordsRevenueQueryService,
   RecordsRevenueService,
+  RecordsRevenueTransactionsQueryService,
   RecordsService,
+  RecordsTransactionsQueryService,
 } from './services';
 
 /**
@@ -51,18 +58,32 @@ import {
       CustomerPayment,
     ]),
   ],
-  controllers: [RecordsController],
+  controllers: [
+    RecordsController,
+    RecordsMasterDataController,
+    RecordsRevenueController,
+  ],
   providers: [
     RecordsService,
     RecordsRevenueService,
     RecordsFilterService,
     RecordsLookupService,
+    RecordsQueryService,
+    RecordsRevenueQueryService,
+    RecordsTransactionsQueryService,
+    RecordsRevenueTransactionsQueryService,
+    RecordsRevenueFilterService,
   ],
   exports: [
     RecordsService,
     RecordsRevenueService,
     RecordsFilterService,
     RecordsLookupService,
+    RecordsQueryService,
+    RecordsRevenueQueryService,
+    RecordsTransactionsQueryService,
+    RecordsRevenueTransactionsQueryService,
+    RecordsRevenueFilterService,
   ],
 })
 export class RecordsModule {}

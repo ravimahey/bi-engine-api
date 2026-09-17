@@ -6,3 +6,4 @@ export * from './quickbooks-session.interface';
 export * from './map-context.interface';
 export * from './quickbooks-payload.interface';
 export * from './quickbooks-poll.interface';
+export * from './quickbooks-sync-status.interface';
