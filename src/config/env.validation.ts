@@ -3,6 +3,7 @@ import {
   IsBoolean,
   IsEnum,
   IsInt,
+  IsNumber,
   IsOptional,
   IsString,
   Max,
@@ -227,6 +228,43 @@ export class EnvironmentVariables {
   @IsOptional()
   TOKEN_ENCRYPTION_KEY: string =
     '0000000000000000000000000000000000000000000000000000000000000000';
+
+  // --------------------------------------------------------------------- ai
+  // Kill switch: false (or a blank GOOGLE_API_KEY) makes every AI endpoint
+  // return its plain deterministic data with `explanation: null`.
+  @IsBoolean()
+  @IsOptional()
+  @toBoolean()
+  AI_ENABLED: boolean = true;
+
+  @IsString()
+  @IsOptional()
+  GOOGLE_API_KEY: string = '';
+
+  @IsString()
+  @IsOptional()
+  GEMINI_MODEL: string = 'gemini-3.6-flash';
+
+  @IsNumber()
+  @IsOptional()
+  @Min(0)
+  @Max(2)
+  @Transform(({ value }: { value: unknown }) => parseFloat(value as string))
+  AI_TEMPERATURE: number = 0.1;
+
+  @IsInt()
+  @IsOptional()
+  @Min(1000)
+  @Transform(({ value }: { value: unknown }) => parseInt(value as string, 10))
+  AI_TIMEOUT_MS: number = 25000;
+
+  // Max model round-trips in one Ask Ordaraa question (tool calls + final answer).
+  @IsInt()
+  @IsOptional()
+  @Min(1)
+  @Max(8)
+  @Transform(({ value }: { value: unknown }) => parseInt(value as string, 10))
+  AI_MAX_TOOL_ROUNDS: number = 4;
 }
 
 export function validateEnv(

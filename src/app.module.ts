@@ -24,7 +24,7 @@ import {
   TransformInterceptor,
 } from '@common/interceptors';
 import { getAppConfig } from '@common/utils';
-import { appConfig, databaseConfig, validateEnv } from '@config';
+import { aiConfig, appConfig, databaseConfig, validateEnv } from '@config';
 import { DatabaseModule } from '@database/database.module';
 import { AuthModule } from '@modules/auth/auth.module';
 import { HealthModule } from '@modules/health/health.module';
@@ -35,6 +35,7 @@ import { QuickbooksModule } from '@modules/quickbooks/quickbooks.module';
 import { RecordsModule } from '@modules/records/records.module';
 import { AnalyticsModule } from '@modules/analytics/analytics.module';
 import { AdminModule } from '@modules/admin/admin.module';
+import { AiModule } from '@modules/ai/ai.module';
 
 @Module({
   imports: [
@@ -48,7 +49,7 @@ import { AdminModule } from '@modules/admin/admin.module';
         '.env.local',
         '.env',
       ],
-      load: [appConfig, databaseConfig],
+      load: [appConfig, databaseConfig, aiConfig],
       validate: validateEnv,
     }),
 
@@ -72,6 +73,7 @@ import { AdminModule } from '@modules/admin/admin.module';
     RecordsModule,
     AnalyticsModule,
     AdminModule,
+    AiModule,
   ],
   providers: [
     // Order matters: interceptors registered first sit outermost in the chain,
