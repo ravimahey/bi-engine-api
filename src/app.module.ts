@@ -36,6 +36,7 @@ import { RecordsModule } from '@modules/records/records.module';
 import { AnalyticsModule } from '@modules/analytics/analytics.module';
 import { AdminModule } from '@modules/admin/admin.module';
 import { AiModule } from '@modules/ai/ai.module';
+import { DashboardModule } from '@modules/dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -74,6 +75,7 @@ import { AiModule } from '@modules/ai/ai.module';
     AnalyticsModule,
     AdminModule,
     AiModule,
+    DashboardModule,
   ],
   providers: [
     // Order matters: interceptors registered first sit outermost in the chain,
