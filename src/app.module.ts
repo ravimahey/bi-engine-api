@@ -33,6 +33,7 @@ import { OrganizationsModule } from '@modules/organizations/organizations.module
 import { ProvidersModule } from '@modules/providers/providers.module';
 import { QuickbooksModule } from '@modules/quickbooks/quickbooks.module';
 import { RecordsModule } from '@modules/records/records.module';
+import { AnalyticsModule } from '@modules/analytics/analytics.module';
 
 @Module({
   imports: [
@@ -68,6 +69,7 @@ import { RecordsModule } from '@modules/records/records.module';
     ProvidersModule,
     QuickbooksModule,
     RecordsModule,
+    AnalyticsModule,
   ],
   providers: [
     // Order matters: interceptors registered first sit outermost in the chain,
