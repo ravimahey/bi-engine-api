@@ -9,6 +9,17 @@ import { OrganizationIdQueryDto } from '../dto';
 import type { DuplicateTransactionGroupRaw } from '../types';
 
 /**
+ * The pg driver hands `date` columns back as a JS `Date` at local midnight
+ * (despite the `string` type), which serialises to a timezone-shifted ISO
+ * timestamp. Normalise to the plain `YYYY-MM-DD` calendar date.
+ */
+function toDateOnly(value: Date | string): string {
+  if (typeof value === 'string') return value.slice(0, 10);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${value.getFullYear()}-${pad(value.getMonth() + 1)}-${pad(value.getDate())}`;
+}
+
+/**
  * Duplicate invoice detection — FINDINGS_AND_AI_CALCULATION_GUIDE.md §4.2.
  * One `GROUP BY` over the fields that define "the same invoice" (vendor +
  * date + amount), keeping only groups that occur more than once — a single
@@ -54,7 +65,7 @@ export class DuplicateDetectionService {
     return raw.map((row) => ({
       vendorId: row.vendorId,
       vendorName: row.vendorName,
-      transactionDate: row.transactionDate,
+      transactionDate: toDateOnly(row.transactionDate),
       totalAmount: Number(row.totalAmount),
       occurrences: Number(row.occurrences),
       transactionIds: row.transactionIds,
