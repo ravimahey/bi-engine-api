@@ -1,3 +1,5 @@
+export * from './admin-dashboard-overview.dto';
+export * from './admin-dashboard-query.dto';
 export * from './admin-user-detail.dto';
 export * from './admin-user-records-param.dto';
 export * from './organization-detail-overview.dto';

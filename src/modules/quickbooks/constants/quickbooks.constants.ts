@@ -1,6 +1,5 @@
 /** Frontend routes the QuickBooks OAuth callback redirects to. */
-export const QUICKBOOKS_CONNECTED_PATH =
-  '/settings/integrations';
+export const QUICKBOOKS_CONNECTED_PATH = '/settings/integrations';
 export const QUICKBOOKS_ERROR_PATH = '/settings/integrations';
 
 /** QuickBooks Accounting API base URLs, per environment. */

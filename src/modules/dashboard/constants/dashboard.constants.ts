@@ -1,6 +1,8 @@
-/** Bucket sizes a time-series graph can group by — mapped to Postgres `date_trunc` units. */
-export const TIME_GRANULARITIES = ['day', 'week', 'month'] as const;
-export type TimeGranularity = (typeof TIME_GRANULARITIES)[number];
+// `TimeGranularity` now lives in `@common/constants` — domain-agnostic and
+// used by 2+ modules (this one and `admin`). Re-exported here so every
+// existing `from '../constants'` import in this module keeps working.
+export { TIME_GRANULARITIES } from '@common/constants';
+export type { TimeGranularity } from '@common/constants';
 
 /** What the "top spenders" graph can rank. */
 export const BREAKDOWN_GROUPS = ['vendor', 'category'] as const;

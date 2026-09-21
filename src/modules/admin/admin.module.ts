@@ -5,9 +5,11 @@ import { OrganizationsModule } from '@modules/organizations/organizations.module
 import { ProviderConnection, SyncCursor } from '@modules/providers/entities';
 import { User } from '@modules/users/entities';
 import { UsersModule } from '@modules/users/users.module';
+import { AdminDashboardController } from './admin-dashboard.controller';
 import { AdminOrganizationsController } from './admin-organizations.controller';
 import { AdminUsersController } from './admin-users.controller';
 import {
+  AdminDashboardService,
   AdminOrganizationOverviewService,
   AdminUserDataService,
   AdminUsersService,
@@ -30,11 +32,16 @@ import {
     UsersModule,
     OrganizationsModule,
   ],
-  controllers: [AdminUsersController, AdminOrganizationsController],
+  controllers: [
+    AdminUsersController,
+    AdminOrganizationsController,
+    AdminDashboardController,
+  ],
   providers: [
     AdminUsersService,
     AdminOrganizationOverviewService,
     AdminUserDataService,
+    AdminDashboardService,
   ],
 })
 export class AdminModule {}
