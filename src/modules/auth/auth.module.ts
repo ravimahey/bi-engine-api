@@ -10,6 +10,7 @@ import {
   AuthPasswordResetService,
   AuthService,
   AuthTokenService,
+  GoogleTokenVerifierService,
 } from './services';
 import { GoogleStrategy, JwtRefreshStrategy, JwtStrategy } from './strategies';
 
@@ -26,6 +27,7 @@ import { GoogleStrategy, JwtRefreshStrategy, JwtStrategy } from './strategies';
     AuthService,
     AuthTokenService,
     AuthPasswordResetService,
+    GoogleTokenVerifierService,
     JwtStrategy,
     JwtRefreshStrategy,
     GoogleStrategy,

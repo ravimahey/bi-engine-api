@@ -133,6 +133,7 @@ everything else requires a valid `access_token`.
 | POST | `/auth/reset-password` | ✅ | `{ email, otp, newPassword }` | Also revokes refresh token |
 | GET | `/auth/google?role=buyer\|supplier` | ✅ | — | **Full browser redirect**, not an XHR/fetch call |
 | GET | `/auth/google/callback` | ✅ | — | Google → backend; backend sets cookies then redirects to `${FRONTEND_URL}/auth/callback` (or `/auth/login?error=google_auth_failed`) |
+| POST | `/auth/google/token` | ✅ | `{ idToken, role? }` | **Google ID-token login** (Google Identity Services `credential`). Verified against `GOOGLE_CLIENT_ID`; sets the same cookies as `/auth/login` and returns the user. `401` for an invalid/expired/wrong-client token. Use this instead of the redirect flow when the FE renders the Google button itself. |
 
 
 Every response body follows the project's standard envelope (see

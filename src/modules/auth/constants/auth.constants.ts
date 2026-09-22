@@ -9,6 +9,7 @@ export const AUTH_ERROR_MESSAGES = {
   ACCOUNT_DEACTIVATED:
     'Your account has been deactivated. Contact an administrator.',
   SESSION_EXPIRED: 'Session expired, please log in again',
+  INVALID_GOOGLE_TOKEN: 'Invalid Google token',
 } as const;
 
 /** Frontend routes the Google OAuth callback redirects to. */

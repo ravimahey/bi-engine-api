@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { UploadService } from '@modules/upload/services';
-import { User } from '@modules/users/entities';
+import { User, UserRole } from '@modules/users/entities';
 import {
   PasswordService,
   UserCredentialsService,
@@ -13,6 +13,7 @@ import {
 } from '@modules/users/services';
 import { AuthPasswordResetService } from './auth-password-reset.service';
 import { AuthTokenService } from './auth-token.service';
+import { GoogleTokenVerifierService } from './google-token-verifier.service';
 import {
   AUTH_ERROR_MESSAGES,
   avatarPublicId,
@@ -20,6 +21,7 @@ import {
 } from '../constants';
 import {
   ForgotPasswordDto,
+  GoogleLoginDto,
   LoginDto,
   ResetPasswordDto,
   SignupDto,
@@ -44,6 +46,7 @@ export class AuthService {
     private readonly uploadService: UploadService,
     private readonly authTokenService: AuthTokenService,
     private readonly authPasswordResetService: AuthPasswordResetService,
+    private readonly googleTokenVerifier: GoogleTokenVerifierService,
   ) {}
 
   async signup(dto: SignupDto): Promise<AuthResult> {
@@ -119,6 +122,16 @@ export class AuthService {
     }
 
     return this.authTokenService.startSession(user);
+  }
+
+  /** ID-token flow: verify Google's token, then reuse the redirect flow's find/link/create logic. */
+  async loginWithGoogleIdToken(dto: GoogleLoginDto): Promise<AuthResult> {
+    const identity = await this.googleTokenVerifier.verify(dto.idToken);
+
+    return this.loginWithGoogle({
+      ...identity,
+      requestedRole: dto.role ?? UserRole.BUYER,
+    });
   }
 
   async refreshSession(

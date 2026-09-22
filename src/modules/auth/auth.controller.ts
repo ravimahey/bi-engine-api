@@ -39,6 +39,7 @@ import {
 } from './constants';
 import {
   ForgotPasswordDto,
+  GoogleLoginDto,
   LoginDto,
   ResetPasswordDto,
   SELF_SERVICE_ROLES,
@@ -225,6 +226,28 @@ export class AuthController {
   async resetPassword(@Body() dto: ResetPasswordDto): Promise<null> {
     await this.authService.resetPassword(dto);
     return null;
+  }
+
+  @Public()
+  @Post('google/token')
+  @HttpCode(HttpStatus.OK)
+  @ResponseMessage('Logged in successfully')
+  @ApiOperation({
+    summary: 'Log in / sign up with a Google ID token',
+    description:
+      'Verifies the Google ID token (Google Identity Services `credential`), ' +
+      'finds, links or creates the user, and sets the same session cookies as /login.',
+  })
+  @ApiOkResponse({ type: User })
+  @ApiUnauthorizedResponse({
+    description: 'Invalid, expired or wrong-audience Google token',
+  })
+  async googleLogin(
+    @Body() dto: GoogleLoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<User> {
+    const result = await this.authService.loginWithGoogleIdToken(dto);
+    return this.attachSession(res, result);
   }
 
   @Public()

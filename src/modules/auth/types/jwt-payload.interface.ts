@@ -38,12 +38,16 @@ export interface RefreshPrincipal extends AuthPrincipal {
   refreshToken: string;
 }
 
-/** Shape passed from the Google strategy into AuthService.loginWithGoogle(). */
-export interface GoogleProfile {
+/** Identity proven by a verified Google ID token — see GoogleTokenVerifierService. */
+export interface VerifiedGoogleIdentity {
   email: string;
   firstName: string;
   lastName: string;
   googleId: string;
+}
+
+/** Shape passed from the Google strategy into AuthService.loginWithGoogle(). */
+export interface GoogleProfile extends VerifiedGoogleIdentity {
   /** Requested role, carried through the OAuth `state` param — buyer/supplier only. */
   requestedRole: UserRole;
 }
