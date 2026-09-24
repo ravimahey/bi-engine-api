@@ -150,6 +150,16 @@ export class UsersService {
     return this.usersRepository.save(user);
   }
 
+  /**
+   * Reverses {@link linkOrganization} — called when a support user's access
+   * to their organization is revoked (see `SupportRequestsService.revokeAccess`).
+   */
+  async unlinkOrganization(userId: string): Promise<User> {
+    const user = await this.findOne(userId);
+    user.organizationId = null;
+    return this.usersRepository.save(user);
+  }
+
   async restore(id: string): Promise<User> {
     const result = await this.usersRepository.restore({ id });
 

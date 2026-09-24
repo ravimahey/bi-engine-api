@@ -8,6 +8,13 @@ export enum UserRole {
   ADMIN = 'admin',
   SUPPLIER = 'supplier',
   BUYER = 'buyer',
+  /**
+   * Full access, same as buyer/supplier, scoped to exactly one organization
+   * once an owner approves their access request (see `modules/support`).
+   * Never self-serves an organization the way buyer/supplier do — it must
+   * be requested and approved.
+   */
+  SUPPORT = 'support',
 }
 
 @Entity({ name: 'users' })

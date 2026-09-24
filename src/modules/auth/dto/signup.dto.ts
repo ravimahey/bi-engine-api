@@ -10,8 +10,16 @@ import {
 } from 'class-validator';
 import { UserRole } from '@modules/users/entities';
 
-/** Roles a visitor may self-assign on signup. Admin accounts are provisioned separately. */
-export const SELF_SERVICE_ROLES = [UserRole.BUYER, UserRole.SUPPLIER] as const;
+/**
+ * Roles a visitor may self-assign on signup. Admin accounts are provisioned
+ * separately. Support is self-service too — they just start with no
+ * organization until an owner approves a request (see `modules/support`).
+ */
+export const SELF_SERVICE_ROLES = [
+  UserRole.BUYER,
+  UserRole.SUPPLIER,
+  UserRole.SUPPORT,
+] as const;
 
 export class SignupDto {
   @ApiProperty({ example: 'ada@example.com', maxLength: 255 })
