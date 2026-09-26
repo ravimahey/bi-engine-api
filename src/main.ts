@@ -1,3 +1,4 @@
+import type { IncomingMessage, ServerResponse } from 'node:http';
 import { Logger, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
@@ -11,13 +12,12 @@ import { APP_CONFIG_KEY, type AppConfig } from '@config';
 import { setupSwagger } from '@config/swagger.config';
 import { HEALTH_ROUTE_PATH } from '@modules/health/constants';
 
-async function bootstrap(): Promise<void> {
+async function createApp(): Promise<NestExpressApplication> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bufferLogs: true,
   });
 
-  const configService = app.get(ConfigService);
-  const config = configService.getOrThrow<AppConfig>(APP_CONFIG_KEY);
+  const config = app.get(ConfigService).getOrThrow<AppConfig>(APP_CONFIG_KEY);
 
   // Security + transport basics.
   app.use(helmet());
@@ -37,10 +37,17 @@ async function bootstrap(): Promise<void> {
     defaultVersion: API_VERSION,
   });
 
+  setupSwagger(app, config);
+
+  return app;
+}
+
+async function bootstrap(): Promise<void> {
+  const app = await createApp();
+  const config = app.get(ConfigService).getOrThrow<AppConfig>(APP_CONFIG_KEY);
+
   // Flush pending work (DB pool, in-flight requests) on SIGTERM/SIGINT.
   app.enableShutdownHooks();
-
-  setupSwagger(app, config);
 
   await app.listen(config.port);
 
@@ -54,4 +61,23 @@ async function bootstrap(): Promise<void> {
   }
 }
 
-void bootstrap();
+// Serverless (Vercel): reuse one initialised app across warm invocations.
+let serverlessApp: Promise<NestExpressApplication> | undefined;
+
+async function getServerlessApp(): Promise<NestExpressApplication> {
+  serverlessApp ??= createApp().then((app) => app.init());
+  return serverlessApp;
+}
+
+export default async function handler(
+  req: IncomingMessage,
+  res: ServerResponse,
+): Promise<void> {
+  const app = await getServerlessApp();
+  app.getHttpAdapter().getInstance()(req, res);
+}
+
+// Vercel sets VERCEL=1 and invokes the default export instead of listening.
+if (!process.env.VERCEL) {
+  void bootstrap();
+}
