@@ -1,5 +1,6 @@
 import { registerAs } from '@nestjs/config';
 import { join } from 'node:path';
+import pg from 'pg';
 import type { PostgresDataSourceOptions } from 'typeorm/driver/postgres/PostgresDataSourceOptions.js';
 
 export const DATABASE_CONFIG_KEY = 'database';
@@ -16,6 +17,9 @@ const asBool = (value: string | undefined, fallback = false): boolean =>
  */
 export const buildDatabaseOptions = (): PostgresDataSourceOptions => ({
   type: 'postgres',
+  // Pass the driver explicitly: TypeORM otherwise loads `pg` via a dynamic
+  // require that serverless bundlers (Vercel) can't trace, so it gets dropped.
+  driver: pg,
   host: process.env.DB_HOST ?? 'localhost',
   port: parseInt(process.env.DB_PORT ?? '5432', 10),
   username: process.env.DB_USERNAME ?? 'postgres',
