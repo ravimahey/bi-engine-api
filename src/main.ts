@@ -20,7 +20,18 @@ async function createApp(): Promise<NestExpressApplication> {
   const config = app.get(ConfigService).getOrThrow<AppConfig>(APP_CONFIG_KEY);
 
   // Security + transport basics.
-  app.use(helmet());
+  // Swagger UI assets load from jsDelivr (see swagger.config.ts).
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          scriptSrc: ["'self'", 'https://cdn.jsdelivr.net'],
+          styleSrc: ["'self'", "'unsafe-inline'", 'https://cdn.jsdelivr.net'],
+          imgSrc: ["'self'", 'data:', 'https://cdn.jsdelivr.net'],
+        },
+      },
+    }),
+  );
   app.use(compression());
   // Auth strategies read the access/refresh JWTs off httpOnly cookies.
   app.use(cookieParser());

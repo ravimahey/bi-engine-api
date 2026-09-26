@@ -2,6 +2,8 @@ import type { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import type { AppConfig } from './app.config';
 
+const SWAGGER_UI_CDN = 'https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.32.13';
+
 export const setupSwagger = (
   app: INestApplication,
   config: AppConfig,
@@ -31,5 +33,13 @@ export const setupSwagger = (
       operationsSorter: 'alpha',
     },
     customSiteTitle: 'Ordara Analytics API Docs',
+    // Serverless bundles (Vercel) don't ship swagger-ui-dist's static files,
+    // so load the UI assets from a CDN pinned to the installed version.
+    customCssUrl: `${SWAGGER_UI_CDN}/swagger-ui.css`,
+    customJs: [
+      `${SWAGGER_UI_CDN}/swagger-ui-bundle.js`,
+      `${SWAGGER_UI_CDN}/swagger-ui-standalone-preset.js`,
+    ],
+    customfavIcon: `${SWAGGER_UI_CDN}/favicon-32x32.png`,
   });
 };
