@@ -23,6 +23,7 @@ import {
   RecordsFilterService,
   RecordsLookupService,
   RecordsQueryService,
+  RecordsRemovalService,
   RecordsRevenueFilterService,
   RecordsRevenueQueryService,
   RecordsRevenueService,
@@ -36,7 +37,8 @@ import {
  * (dashboard, findings engine, "Ask Ordaraa") reads from. Exports
  * `RecordsService`/`RecordsRevenueService` so a provider module's mapper
  * (see `QuickbooksMasterDataMapperService`, `QuickbooksTransactionMapperService`,
- * `QuickbooksRevenueMapperService`) can write into it; this module never
+ * `QuickbooksRevenueMapperService`, and the `Xero*MapperService` equivalents)
+ * can write into it; this module never
  * imports a provider module back.
  */
 @Module({
@@ -65,6 +67,7 @@ import {
   ],
   providers: [
     RecordsService,
+    RecordsRemovalService,
     RecordsRevenueService,
     RecordsFilterService,
     RecordsLookupService,
@@ -76,6 +79,7 @@ import {
   ],
   exports: [
     RecordsService,
+    RecordsRemovalService,
     RecordsRevenueService,
     RecordsFilterService,
     RecordsLookupService,

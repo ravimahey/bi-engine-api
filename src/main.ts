@@ -15,6 +15,9 @@ import { HEALTH_ROUTE_PATH } from '@modules/health/constants';
 async function createApp(): Promise<NestExpressApplication> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bufferLogs: true,
+    // Keeps the exact request bytes on `req.rawBody` (the parsed `req.body`
+    // is unaffected) — the Xero webhook's HMAC signature is computed over them.
+    rawBody: true,
   });
 
   const config = app.get(ConfigService).getOrThrow<AppConfig>(APP_CONFIG_KEY);

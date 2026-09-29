@@ -4,7 +4,7 @@ import { IsUUID } from 'class-validator';
 /**
  * Query param for `GET /quickbooks/connect` — which organization is
  * starting this OAuth flow. Carried securely through to the callback via
- * the signed `state` value (see `buildQuickbooksState`), not trusted again
+ * the signed `state` value (see `buildOAuthState`), not trusted again
  * on the way back.
  */
 export class QuickbooksConnectQueryDto {

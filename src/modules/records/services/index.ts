@@ -7,3 +7,4 @@ export * from './records-revenue-query.service';
 export * from './records-transactions-query.service';
 export * from './records-revenue-transactions-query.service';
 export * from './records-revenue-filter.service';
+export * from './records-removal.service';

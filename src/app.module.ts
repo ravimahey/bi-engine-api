@@ -32,6 +32,7 @@ import { UsersModule } from '@modules/users/users.module';
 import { OrganizationsModule } from '@modules/organizations/organizations.module';
 import { ProvidersModule } from '@modules/providers/providers.module';
 import { QuickbooksModule } from '@modules/quickbooks/quickbooks.module';
+import { XeroModule } from '@modules/xero/xero.module';
 import { RecordsModule } from '@modules/records/records.module';
 import { AnalyticsModule } from '@modules/analytics/analytics.module';
 import { AdminModule } from '@modules/admin/admin.module';
@@ -73,6 +74,7 @@ import { WalkthroughsModule } from '@modules/walkthroughs/walkthroughs.module';
     OrganizationsModule,
     ProvidersModule,
     QuickbooksModule,
+    XeroModule,
     RecordsModule,
     AnalyticsModule,
     AdminModule,

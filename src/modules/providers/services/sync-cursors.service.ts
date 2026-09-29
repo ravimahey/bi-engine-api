@@ -31,6 +31,15 @@ export class SyncCursorsService {
     return this.cursors.find({ where: { providerConnectionId } });
   }
 
+  /**
+   * Drops every checkpoint for one connection, so its next sync starts from
+   * scratch — for when a connection is re-pointed at a different provider
+   * tenant and the old cursors no longer describe the data being pulled.
+   */
+  async deleteAllForConnection(providerConnectionId: string): Promise<void> {
+    await this.cursors.delete({ providerConnectionId });
+  }
+
   async upsert(
     providerConnectionId: string,
     entityType: string,

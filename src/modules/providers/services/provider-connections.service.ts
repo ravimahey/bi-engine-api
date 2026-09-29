@@ -83,6 +83,25 @@ export class ProviderConnectionsService {
     return this.connections.findOne({ where: { organizationId, provider } });
   }
 
+  /**
+   * Every connected organization bound to one provider-side tenant/realm —
+   * how an inbound webhook (which only names the provider's tenant, never
+   * our organization) is routed back to the right connection(s). More than
+   * one organization may legitimately have authorized the same tenant.
+   */
+  async findConnectedByExternalRealmId(
+    provider: ProviderType,
+    externalRealmId: string,
+  ): Promise<ProviderConnection[]> {
+    return this.connections.find({
+      where: {
+        provider,
+        externalRealmId,
+        status: ConnectionStatus.CONNECTED,
+      },
+    });
+  }
+
   async findById(id: string): Promise<ProviderConnection> {
     const connection = await this.connections.findOne({ where: { id } });
 

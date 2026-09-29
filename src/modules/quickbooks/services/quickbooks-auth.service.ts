@@ -9,7 +9,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import OAuthClient from 'intuit-oauth';
 import { Repository } from 'typeorm';
 import type { AuthenticatedUser } from '@common/decorators';
-import { assertOwnOrganization, getAppConfig } from '@common/utils';
+import {
+  assertOwnOrganization,
+  buildOAuthState,
+  getAppConfig,
+  parseOAuthState,
+} from '@common/utils';
 import type { ProviderConnection } from '@modules/providers/entities';
 import { ConnectionStatus, ProviderType } from '@modules/providers/entities';
 import { ProviderConnectionsService } from '@modules/providers/services';
@@ -22,7 +27,6 @@ import type {
   QuickbooksTokenResponse,
 } from '../types';
 import { QUICKBOOKS_CONNECTED_PATH, QUICKBOOKS_ERROR_PATH } from '../constants';
-import { buildQuickbooksState, parseQuickbooksState } from '../utils';
 
 // Refresh a little ahead of the real expiry so a request never races it.
 const REFRESH_SKEW_MS = 60_000;
@@ -84,7 +88,7 @@ export class QuickbooksAuthService {
 
     return this.oauthClient.authorizeUri({
       scope: [OAuthClient.scopes.Accounting],
-      state: buildQuickbooksState(this.stateSecret(), organizationId),
+      state: buildOAuthState(this.stateSecret(), organizationId),
     });
   }
 
@@ -345,7 +349,7 @@ export class QuickbooksAuthService {
     state: unknown,
     realmId: string,
   ): Promise<QuickbooksConnection> {
-    const stateClaims = parseQuickbooksState(state, this.stateSecret());
+    const stateClaims = parseOAuthState(state, this.stateSecret());
     if (!stateClaims) {
       throw new UnauthorizedException(
         'Invalid or expired QuickBooks OAuth state',

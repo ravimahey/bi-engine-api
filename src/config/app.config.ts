@@ -40,6 +40,12 @@ export interface AppConfig {
     environment: QuickbooksEnvironment;
     redirectUri: string;
   };
+  xero: {
+    clientId: string;
+    clientSecret: string;
+    redirectUri: string;
+    webhookSecret: string;
+  };
   security: {
     tokenEncryptionKey: string;
   };
@@ -115,6 +121,14 @@ export default registerAs(APP_CONFIG_KEY, (): AppConfig => {
       redirectUri:
         process.env.QUICKBOOKS_REDIRECT_URI ||
         'http://localhost:3000/api/quickbooks/callback',
+    },
+    xero: {
+      clientId: process.env.XERO_CLIENT_ID ?? '',
+      clientSecret: process.env.XERO_CLIENT_SECRET ?? '',
+      redirectUri:
+        process.env.XERO_CALLBACK_URL ||
+        'http://localhost:8000/api/v1/xero/callback',
+      webhookSecret: process.env.XERO_WEBHOOK_SECRET ?? '',
     },
     security: {
       tokenEncryptionKey: process.env.TOKEN_ENCRYPTION_KEY ?? '',

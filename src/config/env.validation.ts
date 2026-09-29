@@ -218,6 +218,26 @@ export class EnvironmentVariables {
   QUICKBOOKS_REDIRECT_URI: string =
     'http://localhost:3000/api/quickbooks/callback';
 
+  // ------------------------------------------------------------------- xero
+  // Optional like QuickBooks: blank values leave the app bootable, and only
+  // the /xero/* endpoints fail until they're set.
+  @IsString()
+  @IsOptional()
+  XERO_CLIENT_ID: string = '';
+
+  @IsString()
+  @IsOptional()
+  XERO_CLIENT_SECRET: string = '';
+
+  @IsString()
+  @IsOptional()
+  XERO_CALLBACK_URL: string = 'http://localhost:8000/api/v1/xero/callback';
+
+  // Signing key for the x-xero-signature header on incoming webhooks.
+  @IsString()
+  @IsOptional()
+  XERO_WEBHOOK_SECRET: string = '';
+
   // ------------------------------------------------------------- providers
   // AES-256-GCM key encrypting every provider_connections access/refresh
   // token at rest — 32 bytes, hex or base64. The dev-only fallback below
