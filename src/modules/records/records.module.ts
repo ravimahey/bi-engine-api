@@ -20,6 +20,7 @@ import { RecordsController } from './records.controller';
 import { RecordsMasterDataController } from './records-master-data.controller';
 import { RecordsRevenueController } from './records-revenue.controller';
 import {
+  RecordsBulkService,
   RecordsFilterService,
   RecordsLookupService,
   RecordsQueryService,
@@ -67,6 +68,7 @@ import {
   ],
   providers: [
     RecordsService,
+    RecordsBulkService,
     RecordsRemovalService,
     RecordsRevenueService,
     RecordsFilterService,
@@ -79,6 +81,7 @@ import {
   ],
   exports: [
     RecordsService,
+    RecordsBulkService,
     RecordsRemovalService,
     RecordsRevenueService,
     RecordsFilterService,
