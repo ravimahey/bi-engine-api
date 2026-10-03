@@ -4,12 +4,15 @@ import {
   ExpenseTransaction,
   ExpenseTransactionLine,
 } from '@modules/records/entities';
+import { SignalsModule } from '@modules/signals/signals.module';
 import { AnalyticsController } from './analytics.controller';
 import {
+  CategoryPriceIncreaseScanService,
   CostIncreaseFindingService,
   DataQualityService,
   DuplicateDetectionService,
   ExpenseSummaryService,
+  FindingSignalsService,
 } from './services';
 
 /**
@@ -22,10 +25,16 @@ import {
  * `TypeOrmModule.forFeature`); `records` never depends back on this module.
  * Exports its services so a future `findings-ai` module can wrap them as
  * LangChain tools without duplicating the queries.
+ *
+ * Also the BI producer for Signals: `FindingSignalsService` re-runs the
+ * detectors for one organization after its data changes and raises/resolves
+ * the matching signals. The sync and import modules call it; Signals itself
+ * never computes a finding.
  */
 @Module({
   imports: [
     TypeOrmModule.forFeature([ExpenseTransactionLine, ExpenseTransaction]),
+    SignalsModule,
   ],
   controllers: [AnalyticsController],
   providers: [
@@ -33,12 +42,15 @@ import {
     DuplicateDetectionService,
     CostIncreaseFindingService,
     DataQualityService,
+    CategoryPriceIncreaseScanService,
+    FindingSignalsService,
   ],
   exports: [
     ExpenseSummaryService,
     DuplicateDetectionService,
     CostIncreaseFindingService,
     DataQualityService,
+    FindingSignalsService,
   ],
 })
 export class AnalyticsModule {}

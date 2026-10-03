@@ -8,6 +8,7 @@ import {
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, QueryFailedError, Repository } from 'typeorm';
 import type { AuthenticatedUser } from '@common/decorators';
+import { FindingSignalsService } from '@modules/analytics/services';
 import {
   getImportDefinition,
   IMPORT_VALIDATION_TTL_MS,
@@ -46,6 +47,7 @@ export class ImportsService {
     private readonly parser: ImportFileParserService,
     private readonly registry: ImportRegistryService,
     private readonly contextService: ImportContextService,
+    private readonly findingSignals: FindingSignalsService,
   ) {}
 
   async validate(
@@ -174,6 +176,11 @@ export class ImportsService {
         record.payload = null;
         return manager.save(record);
       });
+      // The organization's records just changed — let the BI detectors
+      // raise/resolve its finding signals. Runs after the commit, never throws.
+      await this.findingSignals.refreshForOrganization(
+        committed.organizationId,
+      );
       return this.toResult(committed, []);
     } catch (error) {
       if (error instanceof QueryFailedError) {

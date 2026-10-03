@@ -41,6 +41,7 @@ import { AiModule } from '@modules/ai/ai.module';
 import { DashboardModule } from '@modules/dashboard/dashboard.module';
 import { SupportModule } from '@modules/support/support.module';
 import { WalkthroughsModule } from '@modules/walkthroughs/walkthroughs.module';
+import { SignalsModule } from '@modules/signals/signals.module';
 
 @Module({
   imports: [
@@ -84,6 +85,7 @@ import { WalkthroughsModule } from '@modules/walkthroughs/walkthroughs.module';
     DashboardModule,
     SupportModule,
     WalkthroughsModule,
+    SignalsModule,
   ],
   providers: [
     // Order matters: interceptors registered first sit outermost in the chain,

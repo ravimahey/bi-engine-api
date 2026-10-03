@@ -7,6 +7,7 @@ import {
   ProviderType,
 } from '../entities';
 import type { UpsertProviderConnectionTokens } from '../types';
+import { ConnectionSignalsService } from './connection-signals.service';
 
 const TOKEN_COLUMNS = {
   id: true,
@@ -33,6 +34,7 @@ export class ProviderConnectionsService {
   constructor(
     @InjectRepository(ProviderConnection)
     private readonly connections: Repository<ProviderConnection>,
+    private readonly connectionSignals: ConnectionSignalsService,
   ) {}
 
   /** Finds the connection for a tenant + provider, tokens included — callers own refresh. */
@@ -130,6 +132,8 @@ export class ProviderConnectionsService {
         provider: input.provider,
       });
 
+    const wasInError = existing?.status === ConnectionStatus.ERROR;
+
     connection.externalRealmId = input.externalRealmId;
     connection.accessToken = input.accessToken;
     connection.refreshToken = input.refreshToken;
@@ -144,21 +148,46 @@ export class ProviderConnectionsService {
       `Upserted ${input.provider} connection ${saved.id} for org ${input.organizationId}`,
     );
 
+    // error → connected: the sync-error signal is no longer true.
+    if (wasInError) await this.connectionSignals.resolveSyncError(saved);
+
     return saved;
   }
 
   async markError(id: string, message: string): Promise<void> {
+    const connection = await this.findStatusRef(id);
+
     await this.connections.update(id, {
       status: ConnectionStatus.ERROR,
       lastError: message,
     });
+
+    // Only the transition into `error` is news — a retry that fails again
+    // while already in `error` must not re-raise a signal the user dismissed.
+    if (connection && connection.status !== ConnectionStatus.ERROR) {
+      await this.connectionSignals.raiseSyncError(connection);
+    }
   }
 
   async markDisconnected(id: string): Promise<void> {
+    const connection = await this.findStatusRef(id);
+
     await this.connections.update(id, {
       status: ConnectionStatus.DISCONNECTED,
       accessToken: null,
       refreshToken: null,
+    });
+
+    if (connection?.status === ConnectionStatus.ERROR) {
+      await this.connectionSignals.resolveSyncError(connection);
+    }
+  }
+
+  /** The connection's state just before a status change — what decides whether the change is a transition worth signalling. */
+  private findStatusRef(id: string): Promise<ProviderConnection | null> {
+    return this.connections.findOne({
+      where: { id },
+      select: { id: true, organizationId: true, provider: true, status: true },
     });
   }
 }

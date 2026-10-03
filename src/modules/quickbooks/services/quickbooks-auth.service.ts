@@ -31,6 +31,9 @@ import { QUICKBOOKS_CONNECTED_PATH, QUICKBOOKS_ERROR_PATH } from '../constants';
 // Refresh a little ahead of the real expiry so a request never races it.
 const REFRESH_SKEW_MS = 60_000;
 
+/** `error` on the `intuit-oauth` rejection for a refresh token that is expired or revoked. */
+const INTUIT_INVALID_GRANT = 'invalid_grant';
+
 const TOKEN_COLUMNS = {
   id: true,
   realmId: true,
@@ -303,6 +306,14 @@ export class QuickbooksAuthService {
         `QuickBooks token refresh failed for organization "${connection.organizationId}": ${(error as Error).message}`,
         (error as Error).stack,
       );
+      // Only Intuit rejecting the refresh token itself (expired/revoked)
+      // means the connection is broken; a network blip just fails this call.
+      if ((error as { error?: string }).error === INTUIT_INVALID_GRANT) {
+        await this.providerConnections.markError(
+          connection.id,
+          (error as Error).message,
+        );
+      }
       throw new UnauthorizedException(
         'QuickBooks session expired — reconnect at /quickbooks/connect',
       );

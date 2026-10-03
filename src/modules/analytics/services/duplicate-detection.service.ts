@@ -6,7 +6,10 @@ import { assertOwnOrganization } from '@common/utils';
 import { ExpenseTransaction } from '@modules/records/entities';
 import { UserRole } from '@modules/users/entities';
 import { OrganizationIdQueryDto } from '../dto';
-import type { DuplicateTransactionGroupRaw } from '../types';
+import type {
+  DuplicateGroupWithCurrency,
+  DuplicateTransactionGroupRaw,
+} from '../types';
 
 /**
  * The pg driver hands `date` columns back as a JS `Date` at local midnight
@@ -41,18 +44,39 @@ export class DuplicateDetectionService {
   ) {
     this.assertAccess(query.organizationId, currentUser);
 
-    const raw = await this.transactions
+    const raw = await this.queryGroups(query.organizationId);
+    return raw.map((row) => this.toGroup(row));
+  }
+
+  /**
+   * The same groups for an in-process caller with no user to authorize —
+   * the post-sync signal producer (`FindingSignalsService`). Adds the
+   * group's `currency`, which a signal's message needs to quote the amount.
+   */
+  async findGroupsForOrganization(
+    organizationId: string,
+  ): Promise<DuplicateGroupWithCurrency[]> {
+    const raw = await this.queryGroups(organizationId);
+    return raw.map((row) => ({
+      ...this.toGroup(row),
+      currency: row.currency,
+    }));
+  }
+
+  private queryGroups(
+    organizationId: string,
+  ): Promise<DuplicateTransactionGroupRaw[]> {
+    return this.transactions
       .createQueryBuilder('t')
       .leftJoin('t.vendor', 'vendor')
       .select('t.vendorId', 'vendorId')
       .addSelect('vendor.displayName', 'vendorName')
       .addSelect('t.transactionDate', 'transactionDate')
       .addSelect('t.totalAmount', 'totalAmount')
+      .addSelect('MIN(t.currency)', 'currency')
       .addSelect('COUNT(*)', 'occurrences')
       .addSelect('ARRAY_AGG(t.id)', 'transactionIds')
-      .where('t.organizationId = :organizationId', {
-        organizationId: query.organizationId,
-      })
+      .where('t.organizationId = :organizationId', { organizationId })
       .groupBy('t.vendorId')
       .addGroupBy('vendor.displayName')
       .addGroupBy('t.transactionDate')
@@ -61,15 +85,17 @@ export class DuplicateDetectionService {
       .orderBy('COUNT(*)', 'DESC')
       .addOrderBy('t.totalAmount', 'DESC')
       .getRawMany<DuplicateTransactionGroupRaw>();
+  }
 
-    return raw.map((row) => ({
+  private toGroup(row: DuplicateTransactionGroupRaw) {
+    return {
       vendorId: row.vendorId,
       vendorName: row.vendorName,
       transactionDate: toDateOnly(row.transactionDate),
       totalAmount: Number(row.totalAmount),
       occurrences: Number(row.occurrences),
       transactionIds: row.transactionIds,
-    }));
+    };
   }
 
   private assertAccess(

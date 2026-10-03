@@ -1,5 +1,6 @@
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
+import { AnalyticsModule } from '@modules/analytics/analytics.module';
 import { ProvidersModule } from '@modules/providers/providers.module';
 import { RecordsModule } from '@modules/records/records.module';
 import { XERO_REQUEST_TIMEOUT_MS } from './constants';
@@ -32,6 +33,7 @@ import { XeroController } from './xero.controller';
     HttpModule.register({ timeout: XERO_REQUEST_TIMEOUT_MS, maxRedirects: 5 }),
     ProvidersModule,
     RecordsModule,
+    AnalyticsModule,
   ],
   controllers: [XeroController],
   providers: [

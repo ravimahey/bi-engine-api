@@ -1,6 +1,7 @@
 import { ConflictException, Injectable, Logger } from '@nestjs/common';
 import type { AuthenticatedUser } from '@common/decorators';
 import { assertOwnOrganization } from '@common/utils';
+import { FindingSignalsService } from '@modules/analytics/services';
 import type { ProviderConnection } from '@modules/providers/entities';
 import { SyncCursorsService } from '@modules/providers/services';
 import { UserRole } from '@modules/users/entities';
@@ -52,6 +53,7 @@ export class XeroPollingService {
     private readonly masterDataMapper: XeroMasterDataMapperService,
     private readonly entitySync: XeroEntitySyncService,
     private readonly syncCursors: SyncCursorsService,
+    private readonly findingSignals: FindingSignalsService,
   ) {}
 
   /** `POST /xero/poll` — non-admins may only sync their own organization. */
@@ -110,7 +112,13 @@ export class XeroPollingService {
   ): Promise<XeroPollResult> {
     this.connectionsPolling.add(connection.id);
     try {
-      return await this.runPoll(connection, options);
+      const result = await this.runPoll(connection, options);
+      // The organization's records just changed — let the BI detectors
+      // raise/resolve its finding signals. Never throws.
+      await this.findingSignals.refreshForOrganization(
+        connection.organizationId,
+      );
+      return result;
     } finally {
       this.connectionsPolling.delete(connection.id);
       this.drainPending(connection);

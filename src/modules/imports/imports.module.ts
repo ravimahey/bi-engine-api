@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AnalyticsModule } from '@modules/analytics/analytics.module';
 import { RecordsModule } from '@modules/records/records.module';
 import { DataImport } from './entities';
 import { ImportsController } from './imports.controller';
@@ -31,7 +32,11 @@ import {
  * finding and AI answer works on imported data unchanged.
  */
 @Module({
-  imports: [TypeOrmModule.forFeature([DataImport]), RecordsModule],
+  imports: [
+    TypeOrmModule.forFeature([DataImport]),
+    RecordsModule,
+    AnalyticsModule,
+  ],
   controllers: [ImportsController],
   providers: [
     ImportsService,

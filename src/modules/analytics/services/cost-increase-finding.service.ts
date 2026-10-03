@@ -110,7 +110,8 @@ export class CostIncreaseFindingService {
     };
   }
 
-  private buildSpendChange(current: SpendPeriod, prior: SpendPeriod) {
+  /** The comparison itself — public so the category scan classifies a change exactly as these endpoints do. */
+  buildSpendChange(current: SpendPeriod, prior: SpendPeriod) {
     const spendChange = current.totalSpend - prior.totalSpend;
     const spendChangePercent =
       prior.totalSpend > 0 ? (spendChange / prior.totalSpend) * 100 : null;

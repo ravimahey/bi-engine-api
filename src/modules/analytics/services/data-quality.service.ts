@@ -50,6 +50,24 @@ export class DataQualityService {
     return paginate([items, total], query.page, query.limit);
   }
 
+  /**
+   * Transactions dated inside `[from, to]` with no supplier assigned — the
+   * fact behind the data-quality signal. No caller to authorize: this is
+   * for the in-process signal producer, never exposed over HTTP.
+   */
+  countMissingSupplier(
+    organizationId: string,
+    from: string,
+    to: string,
+  ): Promise<number> {
+    return this.transactions
+      .createQueryBuilder('t')
+      .where('t.organizationId = :organizationId', { organizationId })
+      .andWhere('t.vendorId IS NULL')
+      .andWhere('t.transactionDate BETWEEN :from AND :to', { from, to })
+      .getCount();
+  }
+
   private issuesQuery(
     organizationId: string,
   ): SelectQueryBuilder<ExpenseTransaction> {

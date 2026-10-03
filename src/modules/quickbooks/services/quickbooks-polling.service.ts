@@ -1,6 +1,7 @@
 import { ConflictException, Injectable, Logger } from '@nestjs/common';
 import type { AuthenticatedUser } from '@common/decorators';
 import { assertOwnOrganization } from '@common/utils';
+import { FindingSignalsService } from '@modules/analytics/services';
 import type { ProviderConnection } from '@modules/providers/entities';
 import { SyncCursorsService } from '@modules/providers/services';
 import { UserRole } from '@modules/users/entities';
@@ -56,6 +57,7 @@ export class QuickbooksPollingService {
     private readonly transactionMapper: QuickbooksTransactionMapperService,
     private readonly revenueMapper: QuickbooksRevenueMapperService,
     private readonly syncCursors: SyncCursorsService,
+    private readonly findingSignals: FindingSignalsService,
   ) {}
 
   async poll(
@@ -77,7 +79,11 @@ export class QuickbooksPollingService {
     this.connectionsPolling.add(providerConnection.id);
 
     try {
-      return await this.runPoll(dto, providerConnection);
+      const result = await this.runPoll(dto, providerConnection);
+      // The organization's records just changed — let the BI detectors
+      // raise/resolve its finding signals. Never throws.
+      await this.findingSignals.refreshForOrganization(dto.organizationId);
+      return result;
     } finally {
       this.connectionsPolling.delete(providerConnection.id);
     }

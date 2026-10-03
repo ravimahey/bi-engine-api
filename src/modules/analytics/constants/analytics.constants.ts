@@ -13,3 +13,11 @@ export const SPEND_CHANGE_FINDING_THRESHOLD_PERCENT = 15;
  * overcharging you.
  */
 export const QTY_STABLE_THRESHOLD_PERCENT = 5;
+
+/**
+ * At most this many `possible_duplicate` signals are raised per
+ * organization — the biggest groups first. An import with hundreds of
+ * repeated rows should not bury the inbox; the Duplicates page still lists
+ * every group.
+ */
+export const MAX_DUPLICATE_SIGNALS = 20;

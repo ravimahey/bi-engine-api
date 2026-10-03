@@ -1,6 +1,7 @@
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AnalyticsModule } from '@modules/analytics/analytics.module';
 import { ProvidersModule } from '@modules/providers/providers.module';
 import { RecordsModule } from '@modules/records/records.module';
 import { QUICKBOOKS_REQUEST_TIMEOUT_MS } from './constants';
@@ -39,6 +40,7 @@ import {
     }),
     ProvidersModule,
     RecordsModule,
+    AnalyticsModule,
   ],
   controllers: [QuickbooksController],
   providers: [

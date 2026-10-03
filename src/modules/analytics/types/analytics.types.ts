@@ -22,7 +22,19 @@ export interface DuplicateTransactionGroupRaw {
   vendorName: string | null;
   transactionDate: string;
   totalAmount: string;
+  currency: string;
   occurrences: string;
+  transactionIds: string[];
+}
+
+/** A duplicate group as in-process callers see it — the API shape plus the currency its amount is in. */
+export interface DuplicateGroupWithCurrency {
+  vendorId: string | null;
+  vendorName: string | null;
+  transactionDate: string;
+  totalAmount: number;
+  currency: string;
+  occurrences: number;
   transactionIds: string[];
 }
 
@@ -44,3 +56,27 @@ export interface SpendPeriod {
  */
 export type SpendChangeDriver =
   'price' | 'volume' | 'mixed' | 'none' | 'unknown';
+
+/** Two inclusive `YYYY-MM-DD` windows a spend change is measured between. */
+export interface SpendChangeWindows {
+  currentFrom: string;
+  currentTo: string;
+  priorFrom: string;
+  priorTo: string;
+}
+
+export interface CategorySpendWindowsRaw {
+  categoryId: string;
+  categoryName: string;
+  currentSpend: string;
+  currentQty: string;
+  priorSpend: string;
+  priorQty: string;
+}
+
+/** A category whose spend rose past the finding threshold while quantity held flat. */
+export interface CategoryPriceIncrease {
+  categoryId: string;
+  categoryName: string;
+  spendChangePercent: number;
+}
