@@ -77,22 +77,26 @@ describeLocal('Signals (e2e)', () => {
       order: { createdAt: 'ASC' },
     });
 
-  /** Signs a new user up and gives them an organization — the agent keeps the session cookies. */
-  async function createMember(role: 'buyer' | 'supplier') {
+  /**
+   * Signs a new owner up and gives them an organization — the agent keeps the
+   * session cookies. `side` only labels which end of an order the org plays;
+   * every self-serve account is an owner.
+   */
+  async function createMember(side: 'buyer' | 'supplier') {
     const agent = request.agent(app.getHttpServer());
     await agent
       .post('/api/v1/auth/signup')
       .send({
-        email: `signals-${role}-${run}@example.com`,
+        email: `signals-${side}-${run}@example.com`,
         firstName: 'Signals',
-        lastName: role,
+        lastName: side,
         password: 'Str0ng!Passw0rd',
-        role,
+        role: 'owner',
       })
       .expect(201);
     const res = await agent
       .post('/api/v1/organizations')
-      .send({ name: `Signals ${role} ${run}`, slug: `signals-${role}-${run}` })
+      .send({ name: `Signals ${side} ${run}`, slug: `signals-${side}-${run}` })
       .expect(201);
     return { agent, organizationId: body<{ id: string }>(res).id };
   }

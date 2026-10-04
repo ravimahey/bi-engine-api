@@ -17,7 +17,7 @@ import {
  * and visibility rules here (any active org, not "your own") differ from
  * that module's. Reuses `UsersService.linkOrganization` from `UsersModule`
  * to assign an approved request's organization — the same mechanism
- * buyer/supplier self-serve org creation already uses.
+ * owner self-serve org creation already uses.
  */
 @Module({
   imports: [

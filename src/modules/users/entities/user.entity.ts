@@ -6,22 +6,36 @@ import { Organization } from '@modules/organizations/entities';
 
 export enum UserRole {
   ADMIN = 'admin',
-  SUPPLIER = 'supplier',
-  BUYER = 'buyer',
   /**
-   * Full access, same as buyer/supplier, scoped to exactly one organization
-   * once an owner approves their access request (see `modules/support`).
-   * Never self-serves an organization the way buyer/supplier do — it must
-   * be requested and approved.
+   * The default for every new signup: creates (self-serves) exactly one
+   * organization and owns it — sees all of its data and approves/revokes
+   * support access to it.
+   */
+  OWNER = 'owner',
+  /**
+   * Full access, same as an owner, scoped to exactly one organization once
+   * an owner approves their access request (see `modules/support`). Never
+   * self-serves an organization the way an owner does — it must be
+   * requested and approved.
    */
   SUPPORT = 'support',
 }
 
 @Entity({ name: 'users' })
+// Functional unique index on LOWER(email) — created by the
+// `EnforceUserEmailRules` migration; `synchronize: false` stops
+// migration:generate from trying to drop or recreate it.
+@Index('idx_users_email_lower', { synchronize: false })
 export class User extends BaseEntity {
+  /**
+   * Always stored lowercase and unique case-insensitively (see the
+   * `idx_users_email_lower` index in the `EnforceUserEmailRules` migration).
+   * Immutable once the account exists: `update: false` keeps every `save()`/
+   * `update()` from ever writing it, whatever a caller passes.
+   */
   @ApiProperty({ example: 'ada@example.com' })
   @Index('idx_users_email', { unique: true })
-  @Column({ type: 'varchar', length: 255, unique: true })
+  @Column({ type: 'varchar', length: 255, unique: true, update: false })
   email: string;
 
   @ApiProperty({ example: 'Ada' })
@@ -47,8 +61,8 @@ export class User extends BaseEntity {
   })
   passwordHash: string | null;
 
-  @ApiProperty({ enum: UserRole, example: UserRole.BUYER })
-  @Column({ type: 'enum', enum: UserRole, default: UserRole.BUYER })
+  @ApiProperty({ enum: UserRole, example: UserRole.OWNER })
+  @Column({ type: 'enum', enum: UserRole, default: UserRole.OWNER })
   role: UserRole;
 
   /**

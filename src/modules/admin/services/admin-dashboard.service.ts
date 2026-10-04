@@ -80,11 +80,11 @@ export class AdminDashboardService {
       }),
     ]);
 
-    const usersByRole = { supplier: 0, buyer: 0 };
+    const usersByRole = { owner: 0, support: 0 };
     for (const row of usersByRoleRows) {
-      if (row.role === UserRole.SUPPLIER)
-        usersByRole.supplier = Number(row.count);
-      if (row.role === UserRole.BUYER) usersByRole.buyer = Number(row.count);
+      if (row.role === UserRole.OWNER) usersByRole.owner = Number(row.count);
+      if (row.role === UserRole.SUPPORT)
+        usersByRole.support = Number(row.count);
     }
 
     const connectionsByStatus = {
@@ -100,7 +100,7 @@ export class AdminDashboardService {
     return {
       totalOrganizations,
       activeOrganizations,
-      totalUsers: usersByRole.supplier + usersByRole.buyer,
+      totalUsers: usersByRole.owner + usersByRole.support,
       usersByRole,
       connectionsByStatus,
       organizationsWithErrors: Number(organizationsWithErrors?.count ?? 0),

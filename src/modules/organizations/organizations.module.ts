@@ -14,7 +14,7 @@ import {
  * Registers `Organization` with TypeORM so other modules' entities can carry
  * a real `@ManyToOne` relation to it, and exposes CRUD over the tenant
  * record itself (`OrganizationsController`/`OrganizationsService`) — self
- * serve for a signed-in supplier/buyer creating/reading/updating their own
+ * serve for a signed-in owner creating/reading/updating their own
  * organization, admin-only for listing every organization and for
  * delete/restore. Imports `UsersModule` to link a caller to the org they
  * create and `AuthModule` to re-issue their session with the new

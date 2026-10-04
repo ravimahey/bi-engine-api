@@ -8,7 +8,7 @@ import { User, UserRole } from '@modules/users/entities';
 import { UsersService } from '@modules/users/services';
 
 /**
- * What an admin sees of the user base: buyers and suppliers only. Admin
+ * What an admin sees of the user base: owners and support users only. Admin
  * accounts (including the caller's own) never appear in lists and are
  * treated as not found by id, so an admin can't view, edit or delete another
  * admin through these routes.

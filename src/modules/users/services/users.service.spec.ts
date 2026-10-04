@@ -44,7 +44,7 @@ describe('UsersService', () => {
       firstName: 'Ada',
       lastName: 'Lovelace',
       password: 'Str0ng!Pass',
-      role: UserRole.BUYER,
+      role: UserRole.OWNER,
     };
 
     it('hashes the password instead of storing it in plain text', async () => {

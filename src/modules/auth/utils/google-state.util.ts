@@ -10,12 +10,12 @@ import { SELF_SERVICE_ROLES } from '../dto/signup.dto';
 export const buildGoogleState = (role: unknown): string => {
   const safeRole = SELF_SERVICE_ROLES.includes(role as never)
     ? role
-    : UserRole.BUYER;
+    : UserRole.OWNER;
   return Buffer.from(JSON.stringify({ role: safeRole })).toString('base64url');
 };
 
 export const parseGoogleState = (state: unknown): UserRole => {
-  if (typeof state !== 'string' || !state) return UserRole.BUYER;
+  if (typeof state !== 'string' || !state) return UserRole.OWNER;
 
   try {
     const decoded = JSON.parse(
@@ -25,8 +25,8 @@ export const parseGoogleState = (state: unknown): UserRole => {
     };
     return SELF_SERVICE_ROLES.includes(decoded.role as never)
       ? (decoded.role as UserRole)
-      : UserRole.BUYER;
+      : UserRole.OWNER;
   } catch {
-    return UserRole.BUYER;
+    return UserRole.OWNER;
   }
 };

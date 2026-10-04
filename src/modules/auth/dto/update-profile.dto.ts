@@ -1,10 +1,12 @@
-import { OmitType, PartialType } from '@nestjs/swagger';
-import { CreateUserDto } from '@modules/users/dto';
+import { OmitType } from '@nestjs/swagger';
+import { UpdateUserDto } from '@modules/users/dto';
 
 /**
  * Self-service profile edit: no `password` (dedicated change-password endpoint),
- * no `role`/`isActive` (privilege fields — only an admin may change those).
+ * no `role`/`isActive` (privilege fields — only an admin may change those),
+ * and no `email` (immutable — inherited rejection from `UpdateUserDto`).
  */
-export class UpdateProfileDto extends PartialType(
-  OmitType(CreateUserDto, ['password', 'role', 'isActive'] as const),
-) {}
+export class UpdateProfileDto extends OmitType(UpdateUserDto, [
+  'role',
+  'isActive',
+] as const) {}

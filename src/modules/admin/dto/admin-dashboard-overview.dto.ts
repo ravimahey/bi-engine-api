@@ -3,11 +3,11 @@ import { TIME_GRANULARITIES } from '@common/constants';
 import type { TimeGranularity } from '@common/constants';
 
 export class UsersByRoleDto {
-  @ApiProperty({ example: 42 })
-  supplier: number;
+  @ApiProperty({ example: 88 })
+  owner: number;
 
-  @ApiProperty({ example: 58 })
-  buyer: number;
+  @ApiProperty({ example: 12 })
+  support: number;
 }
 
 export class ConnectionsByStatusDto {
@@ -44,7 +44,7 @@ export class AdminDashboardOverviewDto {
 
   @ApiProperty({
     example: 100,
-    description: 'Non-admin users (buyers + suppliers)',
+    description: 'Non-admin users (owners + support)',
   })
   totalUsers: number;
 

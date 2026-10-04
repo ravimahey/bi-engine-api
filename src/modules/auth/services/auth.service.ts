@@ -55,7 +55,7 @@ export class AuthService {
       firstName: dto.firstName,
       lastName: dto.lastName,
       password: dto.password,
-      role: dto.role,
+      role: dto.role ?? UserRole.OWNER,
       isActive: true,
     });
 
@@ -130,7 +130,7 @@ export class AuthService {
 
     return this.loginWithGoogle({
       ...identity,
-      requestedRole: dto.role ?? UserRole.BUYER,
+      requestedRole: dto.role ?? UserRole.OWNER,
     });
   }
 

@@ -21,7 +21,7 @@ export class GoogleLoginDto {
   @ApiPropertyOptional({
     enum: SELF_SERVICE_ROLES,
     description:
-      'Role for a brand-new account; ignored if the Google account already exists. Defaults to buyer.',
+      'Role for a brand-new account; ignored if the Google account already exists. Defaults to owner.',
   })
   @IsOptional()
   @IsIn(SELF_SERVICE_ROLES, {

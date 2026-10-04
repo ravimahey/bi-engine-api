@@ -72,7 +72,7 @@ export class AuthController {
   @Post('signup')
   @ResponseMessage('Account created successfully')
   @ApiOperation({
-    summary: 'Create a buyer or supplier account (email + password)',
+    summary: 'Create an owner (default) or support account (email + password)',
   })
   @ApiOkResponse({ type: User })
   async signup(
@@ -151,17 +151,17 @@ export class AuthController {
   @ApiBearerAuth('access-token')
   @ResponseMessage('Profile updated successfully')
   @ApiOperation({
-    summary: 'Update the signed-in user’s own name/email/avatar',
+    summary: 'Update the signed-in user’s own name/avatar',
     description:
       'Accepts either JSON or multipart/form-data. Send multipart with an ' +
-      '"avatar" file field to also replace the profile picture.',
+      '"avatar" file field to also replace the profile picture. Email is ' +
+      'immutable — sending one is rejected with 400.',
   })
   @ApiConsumes('multipart/form-data', 'application/json')
   @ApiBody({
     schema: {
       type: 'object',
       properties: {
-        email: { type: 'string', format: 'email' },
         firstName: { type: 'string' },
         lastName: { type: 'string' },
         avatar: {
@@ -261,7 +261,7 @@ export class AuthController {
     enum: SELF_SERVICE_ROLES,
     required: false,
     description:
-      'Role for a brand-new account; ignored if the Google account already exists. Defaults to buyer.',
+      'Role for a brand-new account; ignored if the Google account already exists. Defaults to owner.',
   })
   googleAuth(): void {
     // GoogleInitGuard redirects to Google before this body ever runs.

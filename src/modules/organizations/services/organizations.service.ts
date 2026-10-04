@@ -25,7 +25,7 @@ import { OrganizationSlugService } from './organization-slug.service';
 /**
  * Organization CRUD — the tenant record every provider connection and
  * canonical record is scoped to. Admins can act on any organization; a
- * supplier/buyer can only create their own (once) and read/update it —
+ * owner can only create their own (once) and read/update it —
  * `assertOwnOrganization` enforces that everywhere a non-admin caller is
  * involved.
  */
@@ -43,7 +43,7 @@ export class OrganizationsService {
   ) {}
 
   /**
-   * Self-serve for a supplier/buyer: creates the organization and links the
+   * Self-serve for an owner: creates the organization and links the
    * calling user to it, then re-issues their session so the new
    * `organizationId` claim is usable immediately without a re-login.
    * An admin can also create a standalone organization on someone else's

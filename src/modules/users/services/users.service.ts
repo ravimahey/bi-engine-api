@@ -11,6 +11,7 @@ import type { Paginated } from '@common/types';
 import { CreateUserDto, QueryUsersDto, UpdateUserDto } from '../dto';
 import { User } from '../entities';
 import { SECRET_FIELDS } from '../constants';
+import { isUniqueViolation } from '../utils';
 import { PasswordService } from './password.service';
 
 /**
@@ -48,7 +49,17 @@ export class UsersService {
       passwordHash: await this.passwordService.hash(password),
     });
 
-    const saved = await this.usersRepository.save(user);
+    // The pre-check above can't stop two concurrent signups for one email;
+    // the unique index does, and this turns that into the same 409.
+    const saved = await this.usersRepository
+      .save(user)
+      .catch((error: unknown) => {
+        throw isUniqueViolation(error)
+          ? new ConflictException(
+              `A user with email "${dto.email}" already exists`,
+            )
+          : error;
+      });
     this.logger.log(`Created user ${saved.id}`);
 
     return saved;
@@ -110,18 +121,12 @@ export class UsersService {
   async update(id: string, dto: UpdateUserDto): Promise<User> {
     const user = await this.findOne(id);
 
-    if (dto.email && dto.email !== user.email) {
-      const taken = await this.usersRepository.exists({
-        where: { email: dto.email },
-      });
-      if (taken) {
-        throw new ConflictException(
-          `A user with email "${dto.email}" already exists`,
-        );
-      }
-    }
-
-    Object.assign(user, dto);
+    // Email is immutable. Under ES2022+ class-field semantics the DTO's
+    // declared `email` is an own property (as `undefined`) even when the
+    // client never sent it, so drop it rather than let it blank `user.email`.
+    const changes: Partial<UpdateUserDto> = { ...dto };
+    delete changes.email;
+    Object.assign(user, changes);
     return this.usersRepository.save(user);
   }
 

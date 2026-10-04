@@ -44,9 +44,11 @@ import { OrganizationsService } from './services';
 /**
  * Tenant management. Creating/reading/updating an organization is available
  * to any signed-in user, scoped to their own organization — admins can act
- * on any organization; a supplier/buyer only their own (enforced in
- * `OrganizationsService`, not here — see `assertOwnOrganization`). Listing
- * every organization and deleting/restoring one stay admin-only.
+ * on any organization; an owner/support user only their own (enforced in
+ * `OrganizationsService`, not here — see `assertOwnOrganization`). Creating
+ * one is owner/admin only — support never self-serves an organization, it
+ * is approved into one. Listing every organization and deleting/restoring
+ * one stay admin-only.
  */
 @ApiTags('Organizations')
 @ApiBearerAuth('access-token')
@@ -57,6 +59,8 @@ export class OrganizationsController {
     private readonly configService: ConfigService,
   ) {}
 
+  @Roles(UserRole.OWNER, UserRole.ADMIN)
+  @ApiForbiddenResponse({ description: 'Owner or admin role required' })
   @Post()
   @ResponseMessage('Organization created successfully')
   @ApiOperation({

@@ -3,7 +3,7 @@ export interface OrganizationForSupport {
   id: string;
   name: string;
   slug: string;
-  /** Full name of the buyer/supplier user linked to this org; null if it has none yet. */
+  /** Full name of the owner user linked to this org; null if it has none yet. */
   ownerName: string | null;
   createdAt: Date;
 }

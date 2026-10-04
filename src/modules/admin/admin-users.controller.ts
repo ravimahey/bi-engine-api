@@ -30,7 +30,7 @@ import { AdminUserDetailDto, AdminUserRecordsParamDto } from './dto';
 import { AdminUserDataService, AdminUsersService } from './services';
 
 /**
- * Admin-only management of buyer and supplier accounts (admin accounts are
+ * Admin-only management of owner and support accounts (admin accounts are
  * never listed or reachable here): view, edit and soft-delete. Admins
  * never create users (people sign up themselves) and there is no restore. A
  * signed-in user's own profile lives under `/auth/me` + `/auth/profile`.

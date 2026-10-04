@@ -1,8 +1,9 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
   IsEmail,
   IsIn,
+  IsOptional,
   IsString,
   Matches,
   MaxLength,
@@ -12,14 +13,11 @@ import { UserRole } from '@modules/users/entities';
 
 /**
  * Roles a visitor may self-assign on signup. Admin accounts are provisioned
- * separately. Support is self-service too — they just start with no
- * organization until an owner approves a request (see `modules/support`).
+ * separately. Owner is the default; support is self-service too — they just
+ * start with no organization until an owner approves a request (see
+ * `modules/support`).
  */
-export const SELF_SERVICE_ROLES = [
-  UserRole.BUYER,
-  UserRole.SUPPLIER,
-  UserRole.SUPPORT,
-] as const;
+export const SELF_SERVICE_ROLES = [UserRole.OWNER, UserRole.SUPPORT] as const;
 
 export class SignupDto {
   @ApiProperty({ example: 'ada@example.com', maxLength: 255 })
@@ -58,13 +56,15 @@ export class SignupDto {
   })
   password: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     enum: SELF_SERVICE_ROLES,
-    example: UserRole.BUYER,
-    description: 'Admin accounts cannot be created through signup.',
+    default: UserRole.OWNER,
+    description:
+      'Defaults to owner. Admin accounts cannot be created through signup.',
   })
+  @IsOptional()
   @IsIn(SELF_SERVICE_ROLES, {
     message: `role must be one of: ${SELF_SERVICE_ROLES.join(', ')}`,
   })
-  role: (typeof SELF_SERVICE_ROLES)[number];
+  role: (typeof SELF_SERVICE_ROLES)[number] = UserRole.OWNER;
 }

@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../entities';
 import type { CreateUserFromGoogleInput } from '../types';
+import { isUniqueViolation } from '../utils';
 
 /**
  * Auth-flow-only mutations on `User` — refresh-token/OTP bookkeeping and
@@ -65,7 +66,15 @@ export class UserCredentialsService {
       isActive: true,
       passwordHash: null,
     });
-    return this.usersRepository.save(user);
+    // Two first-time Google sign-ins for one email can race past the
+    // caller's lookup; the unique index stops the second one.
+    return this.usersRepository.save(user).catch((error: unknown) => {
+      throw isUniqueViolation(error)
+        ? new ConflictException(
+            `A user with email "${profile.email}" already exists`,
+          )
+        : error;
+    });
   }
 
   /** Links a Google identity to an existing email/password account (first Google login). */

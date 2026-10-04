@@ -14,9 +14,9 @@ export enum SupportRequestStatus {
 
 /**
  * One row per support user's request to access one organization. The org's
- * owner (the buyer/supplier user linked to it) approves or rejects it —
+ * owner (the `UserRole.OWNER` user linked to it) approves or rejects it —
  * approving links the requester to the organization via the same
- * `User.organizationId` a buyer/supplier already uses, so every existing
+ * `User.organizationId` an owner already uses, so every existing
  * org-scoped read endpoint works for them with no changes. An organization
  * can have several APPROVED support users at once (its "team"); the owner
  * can revoke any one of them individually, which flips that row to

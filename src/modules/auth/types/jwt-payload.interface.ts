@@ -48,6 +48,6 @@ export interface VerifiedGoogleIdentity {
 
 /** Shape passed from the Google strategy into AuthService.loginWithGoogle(). */
 export interface GoogleProfile extends VerifiedGoogleIdentity {
-  /** Requested role, carried through the OAuth `state` param — buyer/supplier only. */
+  /** Requested role, carried through the OAuth `state` param — owner or support only. */
   requestedRole: UserRole;
 }

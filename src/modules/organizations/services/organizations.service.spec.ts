@@ -28,7 +28,7 @@ describe('OrganizationsService.create', () => {
   const authTokenService = {
     startSession: jest.fn().mockResolvedValue({ tokens: { access: 't' } }),
   };
-  const buyer = { id: 'user-1', role: UserRole.BUYER } as AuthenticatedUser;
+  const owner = { id: 'user-1', role: UserRole.OWNER } as AuthenticatedUser;
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -61,7 +61,7 @@ describe('OrganizationsService.create', () => {
   it('generates a unique slug from the name when none is sent', async () => {
     repo.find.mockResolvedValue([{ slug: 'green-chili' }]);
 
-    const { organization } = await service.create(profile, buyer);
+    const { organization } = await service.create(profile, owner);
 
     expect(organization.slug).toBe('green-chili-2');
     expect(repo.create).toHaveBeenCalledWith(
@@ -76,13 +76,13 @@ describe('OrganizationsService.create', () => {
     repo.findOne.mockResolvedValue({ id: 'other' });
 
     await expect(
-      service.create({ ...profile, slug: 'green-chili' }, buyer),
+      service.create({ ...profile, slug: 'green-chili' }, owner),
     ).rejects.toBeInstanceOf(ConflictException);
   });
 
   it('rejects an inconsistent profile before writing anything', async () => {
     await expect(
-      service.create({ ...profile, postcode: '411001' }, buyer),
+      service.create({ ...profile, postcode: '411001' }, owner),
     ).rejects.toBeInstanceOf(BadRequestException);
     expect(repo.save).not.toHaveBeenCalled();
   });

@@ -35,7 +35,7 @@ describe('WalkthroughsService', () => {
 
   it('upserts on (userId, tourKey) and clears completedAt while in progress', async () => {
     repo.findOneOrFail!.mockResolvedValue({ id: 'row' });
-    await service.upsert('user-1', 'onboarding:buyer', {
+    await service.upsert('user-1', 'onboarding:owner', {
       status: WalkthroughStatus.IN_PROGRESS,
       currentStep: 3,
     });
@@ -44,7 +44,7 @@ describe('WalkthroughsService', () => {
     ];
     expect(values).toMatchObject({
       userId: 'user-1',
-      tourKey: 'onboarding:buyer',
+      tourKey: 'onboarding:owner',
       currentStep: 3,
       completedAt: null,
     });

@@ -36,14 +36,14 @@ export class SupportOrganizationsService {
   ): Promise<Paginated<OrganizationForSupport>> {
     const { page, limit, organizationName, ownerName } = query;
 
-    // "Owner" is inferred, not a stored column: the one buyer/supplier user
-    // currently linked to this org (see plan — there's no membership table,
-    // only `User.organizationId`, and only self-serve org creation sets it
-    // today, so at most one non-support user is ever linked per org).
+    // "Owner" is the one `UserRole.OWNER` user currently linked to this org
+    // (there's no membership table, only `User.organizationId`, and only
+    // self-serve org creation sets it for an owner, so at most one owner is
+    // ever linked per org).
     const qb = this.organizationsRepository
       .createQueryBuilder('org')
-      .leftJoin('org.users', 'owner', 'owner.role IN (:...ownerRoles)', {
-        ownerRoles: [UserRole.BUYER, UserRole.SUPPLIER],
+      .leftJoin('org.users', 'owner', 'owner.role = :ownerRole', {
+        ownerRole: UserRole.OWNER,
       })
       .where('org.isActive = :isActive', { isActive: true });
 

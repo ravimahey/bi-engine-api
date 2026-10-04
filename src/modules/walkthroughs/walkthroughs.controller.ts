@@ -26,7 +26,7 @@ import { WalkthroughsService } from './services';
 
 /**
  * The signed-in user's own guided-tour progress. Open to every role (no
- * `@Roles`) — admins, suppliers, buyers and support users all get tours,
+ * `@Roles`) — admins, owners and support users all get tours,
  * and every route only ever touches the caller's own rows.
  */
 @ApiTags('Walkthroughs')

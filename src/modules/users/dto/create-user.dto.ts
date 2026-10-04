@@ -49,10 +49,10 @@ export class CreateUserDto {
   })
   password: string;
 
-  @ApiPropertyOptional({ enum: UserRole, default: UserRole.BUYER })
+  @ApiPropertyOptional({ enum: UserRole, default: UserRole.OWNER })
   @IsOptional()
   @IsEnum(UserRole)
-  role?: UserRole = UserRole.BUYER;
+  role?: UserRole = UserRole.OWNER;
 
   @ApiPropertyOptional({ default: true })
   @IsOptional()

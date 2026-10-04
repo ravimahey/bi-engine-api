@@ -21,7 +21,7 @@ const ORG = '11111111-1111-4111-8111-111111111111';
 const user: AuthenticatedUser = {
   id: 'user-1',
   email: 'ada@example.com',
-  role: 'buyer',
+  role: 'owner',
   organizationId: ORG,
 };
 const orphan: AuthenticatedUser = { ...user, organizationId: null };

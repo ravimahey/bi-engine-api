@@ -78,7 +78,7 @@ export class SupportRequestsController {
     return this.supportRequestsService.listMyRequests(user, query);
   }
 
-  @Roles(UserRole.BUYER, UserRole.SUPPLIER)
+  @Roles(UserRole.OWNER)
   @Get()
   @ResponseMessage('Incoming support requests fetched successfully')
   @ApiOperation({
@@ -93,7 +93,7 @@ export class SupportRequestsController {
     return this.supportRequestsService.listIncomingRequests(user, query);
   }
 
-  @Roles(UserRole.BUYER, UserRole.SUPPLIER)
+  @Roles(UserRole.OWNER)
   @Patch(':id')
   @ResponseMessage('Support request reviewed successfully')
   @ApiOperation({
@@ -115,7 +115,7 @@ export class SupportRequestsController {
     return this.supportRequestsService.reviewRequest(id, dto, user);
   }
 
-  @Roles(UserRole.BUYER, UserRole.SUPPLIER)
+  @Roles(UserRole.OWNER)
   @Get('active')
   @ResponseMessage('Active support users fetched successfully')
   @ApiOperation({
@@ -130,7 +130,7 @@ export class SupportRequestsController {
     return this.supportRequestsService.listActiveMembers(user, query);
   }
 
-  @Roles(UserRole.BUYER, UserRole.SUPPLIER)
+  @Roles(UserRole.OWNER)
   @Patch(':id/revoke')
   @ResponseMessage('Support access revoked successfully')
   @ApiOperation({

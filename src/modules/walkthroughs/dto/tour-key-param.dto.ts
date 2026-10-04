@@ -5,7 +5,7 @@ import {
   WALKTHROUGH_TOUR_KEY_PATTERN,
 } from '../constants';
 
-/** `:tourKey` path param — e.g. `onboarding:buyer` or `page:insights-overview`. */
+/** `:tourKey` path param — e.g. `onboarding:owner` or `page:insights-overview`. */
 export class TourKeyParamDto {
   @ApiProperty({ example: 'onboarding:supplier' })
   @IsString()
