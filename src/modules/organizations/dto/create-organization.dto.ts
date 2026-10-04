@@ -8,8 +8,9 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { OrganizationProfileDto } from './organization-profile.dto';
 
-export class CreateOrganizationDto {
+export class CreateOrganizationDto extends OrganizationProfileDto {
   @ApiProperty({ example: 'Riverside Bistro', minLength: 1, maxLength: 255 })
   @IsString()
   @MinLength(1)
@@ -19,13 +20,15 @@ export class CreateOrganizationDto {
   )
   name: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     example: 'riverside-bistro',
     minLength: 1,
     maxLength: 255,
     description:
-      'URL-safe unique identifier — lowercase letters/digits/hyphens only',
+      'URL-safe unique identifier — lowercase letters/digits/hyphens only. ' +
+      'Omit it to have a unique slug generated from `name`.',
   })
+  @IsOptional()
   @IsString()
   @MinLength(1)
   @MaxLength(255)
@@ -35,10 +38,14 @@ export class CreateOrganizationDto {
   @Transform(({ value }: { value: unknown }) =>
     typeof value === 'string' ? value.trim().toLowerCase() : value,
   )
-  slug: string;
+  slug?: string;
 
+  // No `= true` initializer: `UpdateOrganizationDto` is a `PartialType` of
+  // this class and the global pipe runs with `exposeDefaultValues`, so an
+  // initializer would silently re-activate the organization on every PATCH.
+  // The column's own DB default (`true`) covers creation.
   @ApiPropertyOptional({ default: true })
   @IsOptional()
   @IsBoolean()
-  isActive?: boolean = true;
+  isActive?: boolean;
 }

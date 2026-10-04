@@ -1,4 +1,5 @@
 export { CreateOrganizationDto } from './create-organization.dto';
+export { OrganizationProfileDto } from './organization-profile.dto';
 export { UpdateOrganizationDto } from './update-organization.dto';
 export {
   QueryOrganizationsDto,

@@ -37,6 +37,101 @@ export class Organization extends BaseEntity {
   @Column({ type: 'boolean', name: 'is_active', default: true })
   isActive: boolean;
 
+  // Business profile collected by the onboarding wizard. All nullable /
+  // empty-by-default: organizations created before it (or by an admin with
+  // just a name) simply have no profile yet. Allowed values and per-country
+  // rules: see `../constants` and `OrganizationProfileService`.
+
+  @ApiProperty({ example: 'Riverside Kitchen', nullable: true })
+  @Column({
+    type: 'varchar',
+    name: 'trading_name',
+    length: 255,
+    nullable: true,
+  })
+  tradingName: string | null;
+
+  @ApiProperty({ example: '12 345 678 901', nullable: true })
+  @Column({
+    type: 'varchar',
+    name: 'business_number',
+    length: 50,
+    nullable: true,
+  })
+  businessNumber: string | null;
+
+  @ApiProperty({
+    example: 'AU',
+    description: 'ISO 3166-1 alpha-2',
+    nullable: true,
+  })
+  @Column({ type: 'varchar', length: 2, nullable: true })
+  country: string | null;
+
+  @ApiProperty({ example: 'VIC', nullable: true })
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  region: string | null;
+
+  @ApiProperty({ example: '12 Collins St', nullable: true })
+  @Column({
+    type: 'varchar',
+    name: 'street_address',
+    length: 255,
+    nullable: true,
+  })
+  streetAddress: string | null;
+
+  @ApiProperty({ example: 'Melbourne', nullable: true })
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  city: string | null;
+
+  @ApiProperty({ example: '3000', nullable: true })
+  @Column({ type: 'varchar', length: 10, nullable: true })
+  postcode: string | null;
+
+  @ApiProperty({ example: 'Australia/Sydney', nullable: true })
+  @Column({ type: 'varchar', length: 64, nullable: true })
+  timezone: string | null;
+
+  @ApiProperty({ example: ['restaurant', 'cafe'], type: [String] })
+  @Column({
+    type: 'text',
+    name: 'business_types',
+    array: true,
+    default: () => "'{}'",
+  })
+  businessTypes: string[];
+
+  @ApiProperty({ example: '2-5', nullable: true })
+  @Column({
+    type: 'varchar',
+    name: 'location_count',
+    length: 20,
+    nullable: true,
+  })
+  locationCount: string | null;
+
+  @ApiProperty({ example: '50k-250k', nullable: true })
+  @Column({
+    type: 'varchar',
+    name: 'monthly_volume',
+    length: 20,
+    nullable: true,
+  })
+  monthlyVolume: string | null;
+
+  @ApiProperty({ example: ['reduce-costs'], type: [String] })
+  @Column({ type: 'text', array: true, default: () => "'{}'" })
+  goals: string[];
+
+  @ApiProperty({
+    example: ['xero'],
+    type: [String],
+    description: 'Data sources picked during onboarding (intent only)',
+  })
+  @Column({ type: 'text', array: true, default: () => "'{}'" })
+  integrations: string[];
+
   // Inverse sides of every module's `organization`/`organizationId` FK. Not
   // eager — TypeORM never populates these unless a query explicitly asks for
   // them via `relations`/`leftJoinAndSelect`, so they add no query cost and

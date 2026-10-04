@@ -19,6 +19,8 @@ import {
 } from '../dto';
 import { Organization } from '../entities';
 import type { CreateOrganizationResult } from '../types';
+import { OrganizationProfileService } from './organization-profile.service';
+import { OrganizationSlugService } from './organization-slug.service';
 
 /**
  * Organization CRUD — the tenant record every provider connection and
@@ -36,6 +38,8 @@ export class OrganizationsService {
     private readonly organizationsRepository: Repository<Organization>,
     private readonly usersService: UsersService,
     private readonly authTokenService: AuthTokenService,
+    private readonly profileService: OrganizationProfileService,
+    private readonly slugService: OrganizationSlugService,
   ) {}
 
   /**
@@ -44,6 +48,7 @@ export class OrganizationsService {
    * `organizationId` claim is usable immediately without a re-login.
    * An admin can also create a standalone organization on someone else's
    * behalf — that path never touches the admin's own account or session.
+   * Without an explicit `slug`, a unique one is generated from `name`.
    */
   async create(
     dto: CreateOrganizationDto,
@@ -62,17 +67,22 @@ export class OrganizationsService {
       }
     }
 
-    const existingSlug = await this.organizationsRepository.findOne({
-      where: { slug: dto.slug },
-      withDeleted: true,
-    });
-    if (existingSlug) {
-      throw new ConflictException(
-        `An organization with slug "${dto.slug}" already exists`,
-      );
+    this.profileService.assertValid(dto);
+
+    const slug = dto.slug ?? (await this.slugService.generateUnique(dto.name));
+    if (dto.slug) {
+      const existingSlug = await this.organizationsRepository.findOne({
+        where: { slug },
+        withDeleted: true,
+      });
+      if (existingSlug) {
+        throw new ConflictException(
+          `An organization with slug "${slug}" already exists`,
+        );
+      }
     }
 
-    const organization = this.organizationsRepository.create(dto);
+    const organization = this.organizationsRepository.create({ ...dto, slug });
     const saved = await this.organizationsRepository.save(organization);
     this.logger.log(`Created organization ${saved.id}`);
 
@@ -156,6 +166,9 @@ export class OrganizationsService {
     }
 
     Object.assign(organization, dto);
+    // Checked on the merged result: a PATCH can change `country` without
+    // resending the postcode/region/time zone it has to agree with.
+    this.profileService.assertValid(organization);
     return this.organizationsRepository.save(organization);
   }
 

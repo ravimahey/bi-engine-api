@@ -4,7 +4,11 @@ import { AuthModule } from '@modules/auth/auth.module';
 import { UsersModule } from '@modules/users/users.module';
 import { Organization } from './entities';
 import { OrganizationsController } from './organizations.controller';
-import { OrganizationsService } from './services';
+import {
+  OrganizationProfileService,
+  OrganizationSlugService,
+  OrganizationsService,
+} from './services';
 
 /**
  * Registers `Organization` with TypeORM so other modules' entities can carry
@@ -21,7 +25,11 @@ import { OrganizationsService } from './services';
 @Module({
   imports: [TypeOrmModule.forFeature([Organization]), UsersModule, AuthModule],
   controllers: [OrganizationsController],
-  providers: [OrganizationsService],
+  providers: [
+    OrganizationsService,
+    OrganizationProfileService,
+    OrganizationSlugService,
+  ],
   exports: [OrganizationsService],
 })
 export class OrganizationsModule {}
