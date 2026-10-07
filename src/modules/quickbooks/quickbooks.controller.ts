@@ -17,6 +17,7 @@ import {
   CurrentUser,
   type AuthenticatedUser,
   Public,
+  RequestTimeout,
   Roles,
 } from '@common/decorators';
 import { UserRole } from '@modules/users/entities';
@@ -30,6 +31,7 @@ import {
   QuickbooksSyncStatusQueryDto,
   QuickbooksSyncStatusResultDto,
 } from './dto';
+import { QUICKBOOKS_POLL_TIMEOUT_MS } from './constants';
 import {
   QuickbooksAuthService,
   QuickbooksPollingService,
@@ -209,6 +211,7 @@ export class QuickbooksController {
   }
 
   @Post('poll')
+  @RequestTimeout(QUICKBOOKS_POLL_TIMEOUT_MS)
   @ApiOperation({
     summary:
       'Full step-by-step sync for a date range: CompanyInfo always first, then Vendor/Account/Item/TaxRate/TaxCode/Customer master data, then Bill/Purchase/VendorCredit/BillPayment spend transactions, then Invoice/SalesReceipt/Payment revenue transactions — resuming from each entity’s own SyncCursor. Runs every entity by default; `entities` narrows it for admin debugging only. Must be your own organization, unless admin.',

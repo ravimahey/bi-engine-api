@@ -24,6 +24,7 @@ import {
   CurrentUser,
   type AuthenticatedUser,
   Public,
+  RequestTimeout,
   Roles,
 } from '@common/decorators';
 import { UserRole } from '@modules/users/entities';
@@ -33,6 +34,7 @@ import {
   XeroPollDto,
   XeroSyncStatusResultDto,
 } from './dto';
+import { XERO_POLL_TIMEOUT_MS } from './constants';
 import {
   XeroAuthService,
   XeroPollingService,
@@ -116,6 +118,7 @@ export class XeroController {
   }
 
   @Post('poll')
+  @RequestTimeout(XERO_POLL_TIMEOUT_MS)
   @ApiOperation({
     summary:
       'Sync Xero into the canonical records: Organisation first, then Contacts/Accounts/Items/TaxRates, then ACCPAY Invoices, SPEND BankTransactions, ACCPAYCREDIT CreditNotes and bill Payments. Incremental via If-Modified-Since after the first run; `fullSync` forces a reconciliation pull. Must be your own organization, unless admin.',

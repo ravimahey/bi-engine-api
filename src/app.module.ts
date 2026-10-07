@@ -93,9 +93,12 @@ import { SignalsModule } from '@modules/signals/signals.module';
     { provide: APP_INTERCEPTOR, useClass: LoggingInterceptor },
     {
       provide: APP_INTERCEPTOR,
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) =>
-        new TimeoutInterceptor(getAppConfig(configService).requestTimeoutMs),
+      inject: [Reflector, ConfigService],
+      useFactory: (reflector: Reflector, configService: ConfigService) =>
+        new TimeoutInterceptor(
+          reflector,
+          getAppConfig(configService).requestTimeoutMs,
+        ),
     },
     {
       provide: APP_INTERCEPTOR,

@@ -2,6 +2,7 @@
 export const IS_PUBLIC_KEY = 'isPublic';
 export const ROLES_KEY = 'roles';
 export const RESPONSE_MESSAGE_KEY = 'responseMessage';
+export const REQUEST_TIMEOUT_KEY = 'requestTimeout';
 
 /** Header carrying a per-request correlation id through logs and responses. */
 export const REQUEST_ID_HEADER = 'x-request-id';

@@ -49,6 +49,9 @@ export const XERO_REFRESH_SKEW_MS = 60_000;
 /** Upper bound on how long we wait for a Xero API response before failing the call. */
 export const XERO_REQUEST_TIMEOUT_MS = 20_000;
 
+/** Route-level timeout for `POST /xero/poll` — same reasoning as QuickBooks' poll. */
+export const XERO_POLL_TIMEOUT_MS = 10 * 60 * 1000;
+
 /** Xero's own cap on `pageSize` for paged endpoints — the default of 100 would cost 10x the calls. */
 export const XERO_MAX_PAGE_SIZE = 1000;
 

@@ -15,6 +15,13 @@ export const QUICKBOOKS_MINOR_VERSION = 75;
 export const QUICKBOOKS_REQUEST_TIMEOUT_MS = 15_000;
 
 /**
+ * Route-level timeout for `POST /quickbooks/poll`, overriding the global
+ * `REQUEST_TIMEOUT_MS` — a full sync walks every entity, chunk and page
+ * synchronously and easily outlasts the default 30s.
+ */
+export const QUICKBOOKS_POLL_TIMEOUT_MS = 10 * 60 * 1000;
+
+/**
  * QuickBooks Accounting entities this module can `SELECT * FROM` or pass to
  * the Change Data Capture endpoint — a closed list, not a free-form string,
  * so callers can't build an arbitrary query. Mirrors the API Build Order:
