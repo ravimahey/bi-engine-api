@@ -43,6 +43,7 @@ import { DashboardModule } from '@modules/dashboard/dashboard.module';
 import { SupportModule } from '@modules/support/support.module';
 import { WalkthroughsModule } from '@modules/walkthroughs/walkthroughs.module';
 import { SignalsModule } from '@modules/signals/signals.module';
+import { CommerceModule } from '@modules/commerce/commerce.module';
 
 @Module({
   imports: [
@@ -87,6 +88,7 @@ import { SignalsModule } from '@modules/signals/signals.module';
     SupportModule,
     WalkthroughsModule,
     SignalsModule,
+    CommerceModule,
   ],
   providers: [
     // Order matters: interceptors registered first sit outermost in the chain,
