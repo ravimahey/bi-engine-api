@@ -71,7 +71,7 @@ export class CommerceOrder extends BaseEntity {
   })
   adjustmentStatus: AdjustmentStatus;
 
-  @ApiProperty({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+  @ApiProperty({ type: Number, default: 0 })
   @Column({
     type: 'decimal',
     precision: 12,
@@ -85,7 +85,7 @@ export class CommerceOrder extends BaseEntity {
   })
   requestedTotal: number;
 
-  @ApiProperty({ type: 'decimal', precision: 12, scale: 2, required: false, nullable: true })
+  @ApiProperty({ type: Number, required: false, nullable: true })
   @Column({
     type: 'decimal',
     precision: 12,
@@ -99,7 +99,7 @@ export class CommerceOrder extends BaseEntity {
   })
   adjustedTotal: number | null;
 
-  @ApiProperty({ type: 'decimal', precision: 12, scale: 2, required: false, nullable: true })
+  @ApiProperty({ type: Number, required: false, nullable: true })
   @Column({
     type: 'decimal',
     precision: 12,
@@ -129,7 +129,7 @@ export class CommerceOrder extends BaseEntity {
   @Column({ type: 'text', nullable: true })
   notes: string | null;
 
-  @ApiProperty({ type: 'jsonb', default: [] })
+  @ApiProperty({ type: [Object], default: [] })
   @Column({ type: 'jsonb', default: [] })
   items: OrderItem[];
 }

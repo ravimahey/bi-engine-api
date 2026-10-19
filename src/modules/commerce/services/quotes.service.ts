@@ -1,7 +1,7 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { SignalSourceType, SignalType } from '@modules/signals/entities/signal.entity';
+import { SignalType } from '@modules/signals/entities/signal.entity';
 import { SignalsService } from '@modules/signals/services/signals.service';
 import { CreateQuoteDto } from '../dto/create-quote.dto';
 import { Quote, QuoteStatus } from '../entities/quote.entity';
@@ -142,7 +142,6 @@ export class QuotesService {
     await this.signalsService.createSignal({
       organizationId,
       type: SignalType.ORDER_READY_TO_PACK,
-      sourceType: SignalSourceType.ORDER,
       sourceId: savedOrder.id,
       title: 'Order Ready to Pack',
       message: `Order #${savedOrder.orderNumber} is ready to pack ($${savedOrder.requestedTotal.toFixed(2)})`,

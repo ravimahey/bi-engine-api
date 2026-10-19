@@ -29,7 +29,7 @@ export class CommercePayment extends BaseEntity {
   @Column({ type: 'uuid', name: 'invoice_id' })
   invoiceId: string;
 
-  @ApiProperty({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+  @ApiProperty({ type: Number, default: 0 })
   @Column({
     type: 'decimal',
     precision: 12,

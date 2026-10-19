@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { SignalSourceType, SignalType } from '@modules/signals/entities/signal.entity';
+import { SignalType } from '@modules/signals/entities/signal.entity';
 import { SignalsService } from '@modules/signals/services/signals.service';
 import { CreateOrderDto, PackOrderDto, RejectAdjustmentDto } from '../dto/order.dto';
 import {
@@ -70,7 +70,6 @@ export class OrdersService {
     await this.signalsService.createSignal({
       organizationId,
       type: SignalType.ORDER_READY_TO_PACK,
-      sourceType: SignalSourceType.ORDER,
       sourceId: savedOrder.id,
       title: 'Order Ready to Pack',
       message: `Order #${savedOrder.orderNumber} is ready to pack ($${savedOrder.requestedTotal.toFixed(2)})`,
@@ -147,7 +146,6 @@ export class OrdersService {
     await this.signalsService.resolveSignal({
       organizationId,
       type: SignalType.ORDER_READY_TO_PACK,
-      sourceType: SignalSourceType.ORDER,
       sourceId: order.id,
     });
 
@@ -163,7 +161,6 @@ export class OrdersService {
       await this.signalsService.createSignal({
         organizationId,
         type: SignalType.ORDER_NEEDS_ACTION,
-        sourceType: SignalSourceType.ORDER,
         sourceId: order.id,
         title: 'Order Adjustment Needs Confirmation',
         message: `Order #${order.orderNumber} was adjusted during packing (new total: $${order.adjustedTotal.toFixed(2)} vs requested: $${order.requestedTotal.toFixed(2)})`,
@@ -212,7 +209,6 @@ export class OrdersService {
     await this.signalsService.resolveSignal({
       organizationId,
       type: SignalType.ORDER_NEEDS_ACTION,
-      sourceType: SignalSourceType.ORDER,
       sourceId: order.id,
     });
 
@@ -241,7 +237,6 @@ export class OrdersService {
     await this.signalsService.resolveSignal({
       organizationId,
       type: SignalType.ORDER_NEEDS_ACTION,
-      sourceType: SignalSourceType.ORDER,
       sourceId: order.id,
     });
 
@@ -249,7 +244,6 @@ export class OrdersService {
     await this.signalsService.createSignal({
       organizationId,
       type: SignalType.ADJUSTMENT_REJECTED,
-      sourceType: SignalSourceType.ORDER,
       sourceId: order.id,
       title: 'Order Adjustment Rejected',
       message: `Buyer rejected adjustment for Order #${order.orderNumber}${dto.reason ? `: ${dto.reason}` : ''}`,

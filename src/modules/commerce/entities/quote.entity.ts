@@ -48,7 +48,7 @@ export class Quote extends BaseEntity {
   @Column({ type: 'timestamptz', name: 'expiry_date', nullable: true })
   expiryDate: Date | null;
 
-  @ApiProperty({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+  @ApiProperty({ type: Number, default: 0 })
   @Column({
     type: 'decimal',
     precision: 12,
@@ -61,7 +61,7 @@ export class Quote extends BaseEntity {
   })
   subtotal: number;
 
-  @ApiProperty({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+  @ApiProperty({ type: Number, default: 0 })
   @Column({
     type: 'decimal',
     precision: 12,
@@ -74,7 +74,7 @@ export class Quote extends BaseEntity {
   })
   tax: number;
 
-  @ApiProperty({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+  @ApiProperty({ type: Number, default: 0 })
   @Column({
     type: 'decimal',
     precision: 12,
@@ -95,7 +95,7 @@ export class Quote extends BaseEntity {
   @Column({ type: 'uuid', name: 'order_id', nullable: true })
   orderId: string | null;
 
-  @ApiProperty({ type: 'jsonb', default: [] })
+  @ApiProperty({ type: [Object], default: [] })
   @Column({ type: 'jsonb', default: [] })
   items: QuoteItem[];
 }

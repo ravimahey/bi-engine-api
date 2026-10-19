@@ -1,4 +1,4 @@
-import { ConflictException, BadRequestException, NotFoundException } from '@nestjs/common';
+import { ConflictException, BadRequestException } from '@nestjs/common';
 import { SignalSourceType, SignalType } from '@modules/signals/entities/signal.entity';
 import { SignalsService } from '@modules/signals/services/signals.service';
 import { QuotesService } from './services/quotes.service';
@@ -7,7 +7,7 @@ import { InvoicesService } from './services/invoices.service';
 import { Quote, QuoteStatus } from './entities/quote.entity';
 import { CommerceOrder, OrderStatus, AdjustmentStatus } from './entities/order.entity';
 import { CommerceInvoice, CommerceInvoiceStatus } from './entities/invoice.entity';
-import { CommercePayment, CommercePaymentMethod, CommercePaymentStatus } from './entities/payment.entity';
+import { CommercePayment, CommercePaymentMethod } from './entities/payment.entity';
 
 describe('Commerce & Signals Integration Workflow', () => {
   const orgId = '11111111-1111-1111-1111-111111111111';
@@ -482,7 +482,7 @@ describe('Commerce & Signals Integration Workflow', () => {
         lineItems: [{ description: 'Item 1', quantity: 10, unit: 'kg', unitPrice: 50 }], // $500
       });
 
-      const inv2 = await invoicesService.create(orgId, {
+      await invoicesService.create(orgId, {
         dueDate: new Date(Date.now() + 86400000).toISOString(),
         lineItems: [{ description: 'Item 2', quantity: 10, unit: 'kg', unitPrice: 20 }], // $200
       });

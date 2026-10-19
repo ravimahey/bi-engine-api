@@ -62,7 +62,7 @@ export class CommerceInvoice extends BaseEntity {
   @Column({ type: 'timestamptz', name: 'due_date' })
   dueDate: Date;
 
-  @ApiProperty({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+  @ApiProperty({ type: Number, default: 0 })
   @Column({
     type: 'decimal',
     precision: 12,
@@ -75,7 +75,7 @@ export class CommerceInvoice extends BaseEntity {
   })
   subtotal: number;
 
-  @ApiProperty({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+  @ApiProperty({ type: Number, default: 0 })
   @Column({
     type: 'decimal',
     precision: 12,
@@ -88,7 +88,7 @@ export class CommerceInvoice extends BaseEntity {
   })
   tax: number;
 
-  @ApiProperty({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+  @ApiProperty({ type: Number, default: 0 })
   @Column({
     type: 'decimal',
     precision: 12,
@@ -101,7 +101,7 @@ export class CommerceInvoice extends BaseEntity {
   })
   total: number;
 
-  @ApiProperty({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+  @ApiProperty({ type: Number, default: 0 })
   @Column({
     type: 'decimal',
     precision: 12,
@@ -115,7 +115,7 @@ export class CommerceInvoice extends BaseEntity {
   })
   amountPaid: number;
 
-  @ApiProperty({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+  @ApiProperty({ type: Number, default: 0 })
   @Column({
     type: 'decimal',
     precision: 12,
@@ -129,7 +129,7 @@ export class CommerceInvoice extends BaseEntity {
   })
   balanceDue: number;
 
-  @ApiProperty({ type: 'jsonb', default: [] })
+  @ApiProperty({ type: [Object], default: [] })
   @Column({ type: 'jsonb', default: [], name: 'line_items' })
   lineItems: InvoiceLineItem[];
 

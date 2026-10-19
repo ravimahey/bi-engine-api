@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LessThan, Repository } from 'typeorm';
-import { SignalSourceType, SignalType } from '@modules/signals/entities/signal.entity';
+import { Repository } from 'typeorm';
+import { SignalType } from '@modules/signals/entities/signal.entity';
 import { SignalsService } from '@modules/signals/services/signals.service';
 import { CreateInvoiceDto, RecordPaymentDto } from '../dto/invoice.dto';
 import {
@@ -118,7 +118,6 @@ export class InvoicesService {
       await this.signalsService.createSignal({
         organizationId,
         type: SignalType.INVOICE_OVERDUE,
-        sourceType: SignalSourceType.INVOICE,
         sourceId: invoice.id,
         title: 'Invoice Overdue',
         message: `Invoice #${invoice.invoiceNumber} is overdue. Outstanding balance: $${invoice.balanceDue.toFixed(2)}`,
@@ -233,7 +232,6 @@ export class InvoicesService {
       await this.signalsService.resolveSignal({
         organizationId,
         type: SignalType.INVOICE_OVERDUE,
-        sourceType: SignalSourceType.INVOICE,
         sourceId: invoice.id,
       });
     } else if (amountPaid > 0 && balanceDue > 0) {
