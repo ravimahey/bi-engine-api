@@ -30,6 +30,10 @@ import type {
   PriceNegotiationState,
 } from '../types';
 import { SignalsService } from './signals.service';
+import {
+  alignPriceAndQuantityToUnit,
+  extractUnitFromText,
+} from '../utils';
 
 @Injectable()
 export class SupplierPriceIncreaseService {
@@ -75,12 +79,28 @@ export class SupplierPriceIncreaseService {
     const createdSignals: Signal[] = [];
 
     for (const line of lines) {
-      const invoicePrice = Number(line.unitPrice);
-      const quantity = Number(line.quantity);
+      const rawInvoicePrice = Number(line.unitPrice);
+      const rawQuantity = Number(line.quantity);
 
-      if (invoicePrice <= 0 || quantity <= 0) {
+      if (rawInvoicePrice <= 0 || rawQuantity <= 0) {
         continue;
       }
+
+      // Extract and normalize units from item and line descriptions
+      const itemUnit = extractUnitFromText(line.item?.name, line.item?.description);
+      const lineUnit = extractUnitFromText(line.description, line.item?.name);
+
+      // Normalize across compatible units (e.g. g -> kg, oz -> lb, etc.)
+      const {
+        normalizedInvoicePrice: invoicePrice,
+        normalizedQuantity: quantity,
+        effectiveUnit: unit,
+      } = alignPriceAndQuantityToUnit({
+        invoicePrice: rawInvoicePrice,
+        quantity: rawQuantity,
+        invoiceUnit: lineUnit,
+        targetUnit: itemUnit,
+      });
 
       // Check agreed price: item.unitPrice is the agreed list/contract price or prior baseline
       const agreedPrice = await this.resolveAgreedPrice(organizationId, line);
@@ -105,7 +125,7 @@ export class SupplierPriceIncreaseService {
           step: 'Price Increase Detected',
           actor: 'system' as const,
           timestamp: new Date().toISOString(),
-          message: `${itemName} unit price on invoice #${invoiceNumber} is $${invoicePrice.toFixed(2)}/kg vs agreed $${agreedPrice.toFixed(2)}/kg. Potential additional cost: $${potentialAdditionalCost.toFixed(2)}.`,
+          message: `${itemName} unit price on invoice #${invoiceNumber} is $${invoicePrice.toFixed(2)}/${unit} vs agreed $${agreedPrice.toFixed(2)}/${unit}. Potential additional cost: $${potentialAdditionalCost.toFixed(2)}.`,
           price: invoicePrice,
         },
       ];
@@ -120,7 +140,7 @@ export class SupplierPriceIncreaseService {
         invoiceDate,
         lineId: line.id,
         quantity,
-        unit: 'kg',
+        unit,
         agreedPrice,
         invoicePrice,
         priceDifference,
@@ -130,8 +150,8 @@ export class SupplierPriceIncreaseService {
         potentialAdditionalCost,
         currency,
         recommendedActions: [
-          `Request price clarification from ${vendorName} regarding the unscheduled +$${priceDifference.toFixed(2)}/kg (+${priceIncreasePercent}%) increase`,
-          `Negotiate to restore agreed price of $${agreedPrice.toFixed(2)}/kg or reach a volume-adjusted compromise`,
+          `Request price clarification from ${vendorName} regarding the unscheduled +$${priceDifference.toFixed(2)}/${unit} (+${priceIncreasePercent}%) increase`,
+          `Negotiate to restore agreed price of $${agreedPrice.toFixed(2)}/${unit} or reach a volume-adjusted compromise`,
           `Verify final invoice or credit note against revised agreement before payment release`,
         ],
         negotiation: {
@@ -141,7 +161,7 @@ export class SupplierPriceIncreaseService {
       };
 
       const title = `Supplier price increase: ${itemName}`;
-      const message = `${vendorName} increased ${itemName} from $${agreedPrice.toFixed(2)}/kg to $${invoicePrice.toFixed(2)}/kg (+$${priceDifference.toFixed(2)}/kg) on invoice #${invoiceNumber}. Potential additional cost: $${potentialAdditionalCost.toFixed(2)}.`;
+      const message = `${vendorName} increased ${itemName} from $${agreedPrice.toFixed(2)}/${unit} to $${invoicePrice.toFixed(2)}/${unit} (+$${priceDifference.toFixed(2)}/${unit}) on invoice #${invoiceNumber}. Potential additional cost: $${potentialAdditionalCost.toFixed(2)}.`;
 
       const signal = await this.signalsService.createSignal({
         organizationId,
@@ -199,8 +219,22 @@ export class SupplierPriceIncreaseService {
         .getOne();
 
       if (line) {
-        const invoicePrice = Number(line.unitPrice);
-        const quantity = Number(line.quantity || 1);
+        const rawInvoicePrice = Number(line.unitPrice);
+        const rawQuantity = Number(line.quantity || 1);
+        const itemUnit = extractUnitFromText(line.item?.name, line.item?.description);
+        const lineUnit = extractUnitFromText(line.description, line.item?.name);
+
+        const {
+          normalizedInvoicePrice: invoicePrice,
+          normalizedQuantity: quantity,
+          effectiveUnit: unit,
+        } = alignPriceAndQuantityToUnit({
+          invoicePrice: rawInvoicePrice,
+          quantity: rawQuantity,
+          invoiceUnit: lineUnit,
+          targetUnit: itemUnit,
+        });
+
         const agreedPrice = await this.resolveAgreedPrice(
           signal.organizationId,
           line,
@@ -224,7 +258,7 @@ export class SupplierPriceIncreaseService {
             invoiceDate: line.transactionDate || new Date().toISOString().slice(0, 10),
             lineId: line.id,
             quantity,
-            unit: 'kg',
+            unit,
             agreedPrice,
             invoicePrice,
             priceDifference,
@@ -234,8 +268,8 @@ export class SupplierPriceIncreaseService {
             potentialAdditionalCost,
             currency: line.currency || 'USD',
             recommendedActions: [
-              `Request price clarification from ${vendorName} regarding the unscheduled +$${priceDifference.toFixed(2)}/kg (+${priceIncreasePercent}%) increase`,
-              `Negotiate to restore agreed price of $${agreedPrice.toFixed(2)}/kg or reach a volume-adjusted compromise`,
+              `Request price clarification from ${vendorName} regarding the unscheduled +$${priceDifference.toFixed(2)}/${unit} (+${priceIncreasePercent}%) increase`,
+              `Negotiate to restore agreed price of $${agreedPrice.toFixed(2)}/${unit} or reach a volume-adjusted compromise`,
               `Verify final invoice or credit note against revised agreement before payment release`,
             ],
             negotiation: {
@@ -245,7 +279,7 @@ export class SupplierPriceIncreaseService {
                   step: 'Price Increase Detected',
                   actor: 'system',
                   timestamp: signal.createdAt?.toString() || new Date().toISOString(),
-                  message: `${itemName} unit price on invoice #${invoiceNumber} is $${invoicePrice.toFixed(2)}/kg vs agreed $${agreedPrice.toFixed(2)}/kg. Potential additional cost: $${potentialAdditionalCost.toFixed(2)}.`,
+                  message: `${itemName} unit price on invoice #${invoiceNumber} is $${invoicePrice.toFixed(2)}/${unit} vs agreed $${agreedPrice.toFixed(2)}/${unit}. Potential additional cost: $${potentialAdditionalCost.toFixed(2)}.`,
                   price: invoicePrice,
                 },
               ],
