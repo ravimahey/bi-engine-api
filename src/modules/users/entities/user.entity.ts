@@ -1,8 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
-import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
 import { BaseEntity } from '@common/entities';
-import { Organization } from '@modules/organizations/entities';
+import {
+  Organization,
+  OrganizationUser,
+} from '@modules/organizations/entities';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -80,6 +90,9 @@ export class User extends BaseEntity {
   @ManyToOne(() => Organization, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'organization_id' })
   organization: Organization | null;
+
+  @OneToMany(() => OrganizationUser, (membership) => membership.user)
+  organizationMemberships: OrganizationUser[];
 
   @ApiProperty({ example: true })
   @Column({ type: 'boolean', name: 'is_active', default: true })

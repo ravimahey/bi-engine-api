@@ -1,10 +1,8 @@
 import type { ConfigService } from '@nestjs/config';
-import type { Repository } from 'typeorm';
 import type { ProviderConnection } from '@modules/providers/entities';
 import { ProviderType } from '@modules/providers/entities';
 import type { ProviderConnectionsService } from '@modules/providers/services';
-import { QuickbooksConnection } from '../entities';
-import { buildQuickbooksState } from '../utils';
+import { buildOAuthState } from '@common/utils';
 import { QuickbooksAuthService } from './quickbooks-auth.service';
 
 /**
@@ -54,25 +52,16 @@ function createConfigService() {
   } as unknown as ConfigService;
 }
 
-type MockConnectionsRepo = Partial<
-  Record<keyof Repository<QuickbooksConnection>, jest.Mock>
->;
-
-function createConnectionsRepo(): MockConnectionsRepo {
-  return {
-    find: jest.fn().mockResolvedValue([]),
-    findOneBy: jest.fn().mockResolvedValue(null),
-    create: jest.fn((partial: Partial<QuickbooksConnection>) => partial),
-    save: jest.fn((entity: QuickbooksConnection) => Promise.resolve(entity)),
-  };
-}
-
 function createProviderConnectionsService() {
   return {
     findWithTokensOrNull: jest.fn(),
+    findLatestWithTokensOrNull: jest.fn(),
     upsertTokens: jest.fn(),
   } as unknown as jest.Mocked<
-    Pick<ProviderConnectionsService, 'findWithTokensOrNull' | 'upsertTokens'>
+    Pick<
+      ProviderConnectionsService,
+      'findWithTokensOrNull' | 'findLatestWithTokensOrNull' | 'upsertTokens'
+    >
   >;
 }
 
@@ -92,16 +81,13 @@ function fakeTokenResponse(overrides: {
 }
 
 describe('QuickbooksAuthService', () => {
-  let connectionsRepo: ReturnType<typeof createConnectionsRepo>;
   let providerConnections: ReturnType<typeof createProviderConnectionsService>;
   let service: QuickbooksAuthService;
 
   beforeEach(() => {
-    connectionsRepo = createConnectionsRepo();
     providerConnections = createProviderConnectionsService();
     service = new QuickbooksAuthService(
       createConfigService(),
-      connectionsRepo as unknown as Repository<QuickbooksConnection>,
       providerConnections as unknown as ProviderConnectionsService,
     );
   });
@@ -115,7 +101,7 @@ describe('QuickbooksAuthService', () => {
 
   describe('OAuth connect -> callback association', () => {
     it("associates Company A's realm/tokens with Organization A via the signed state", async () => {
-      const state = buildQuickbooksState(
+      const state = buildOAuthState(
         APP_CONFIG.quickbooks.clientSecret,
         'org-A',
       );
@@ -148,7 +134,7 @@ describe('QuickbooksAuthService', () => {
     });
 
     it("associates Company B's realm/tokens with Organization B via the signed state", async () => {
-      const state = buildQuickbooksState(
+      const state = buildOAuthState(
         APP_CONFIG.quickbooks.clientSecret,
         'org-B',
       );
@@ -180,7 +166,7 @@ describe('QuickbooksAuthService', () => {
     });
 
     it('rejects a callback with a tampered state and never associates any ProviderConnection', async () => {
-      const state = buildQuickbooksState(
+      const state = buildOAuthState(
         APP_CONFIG.quickbooks.clientSecret,
         'org-A',
       );
@@ -205,7 +191,7 @@ describe('QuickbooksAuthService', () => {
     it('rejects an expired state and never associates any ProviderConnection', async () => {
       const now = Date.now();
       const nowSpy = jest.spyOn(Date, 'now').mockReturnValue(now);
-      const state = buildQuickbooksState(
+      const state = buildOAuthState(
         APP_CONFIG.quickbooks.clientSecret,
         'org-A',
       );
@@ -232,8 +218,6 @@ describe('QuickbooksAuthService', () => {
       providerConnections.findWithTokensOrNull.mockResolvedValue(null);
 
       await expect(service.ensureProviderConnection('org-A')).rejects.toThrow();
-      // The legacy "most recently updated" table is never consulted as a fallback.
-      expect(connectionsRepo.find).not.toHaveBeenCalled();
       expect(providerConnections.upsertTokens).not.toHaveBeenCalled();
     });
 
@@ -260,7 +244,6 @@ describe('QuickbooksAuthService', () => {
       const sessionA = await service.getSessionForOrganization('org-A');
 
       expect(sessionA).toEqual({ realmId: 'REALM_A', accessToken: 'token-A' });
-      expect(connectionsRepo.find).not.toHaveBeenCalled();
     });
 
     it("Organization B's first poll resolves Company B even though Organization A is also connected", async () => {
@@ -286,7 +269,6 @@ describe('QuickbooksAuthService', () => {
       const sessionB = await service.getSessionForOrganization('org-B');
 
       expect(sessionB).toEqual({ realmId: 'REALM_B', accessToken: 'token-B' });
-      expect(connectionsRepo.find).not.toHaveBeenCalled();
     });
 
     it('resolves each organization to its own realm independently (Org A -> Realm A, Org B -> Realm B)', async () => {
@@ -352,7 +334,6 @@ describe('QuickbooksAuthService', () => {
       // Every write for this refresh is scoped to org-A alone.
       expect(providerConnections.upsertTokens).toHaveBeenCalledTimes(1);
       expect(refreshed.externalRealmId).toBe('REALM_A');
-      expect(connectionsRepo.find).not.toHaveBeenCalled();
     });
   });
 });

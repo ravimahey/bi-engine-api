@@ -20,6 +20,7 @@ import {
 import { JwtAuthGuard, RolesGuard } from '@common/guards';
 import {
   LoggingInterceptor,
+  TenantContextInterceptor,
   TimeoutInterceptor,
   TransformInterceptor,
 } from '@common/interceptors';
@@ -107,6 +108,8 @@ import { SignalsModule } from '@modules/signals/signals.module';
     },
     // Applies @Exclude()/@Expose() so entities never leak secrets over the wire.
     { provide: APP_INTERCEPTOR, useClass: ClassSerializerInterceptor },
+    // Resolves and sets TenantContext across asynchronous request lifecycles.
+    { provide: APP_INTERCEPTOR, useClass: TenantContextInterceptor },
 
     // Global validation: strips unknown keys, rejects extras, coerces types.
     {

@@ -13,6 +13,7 @@ import {
   VendorCredit,
 } from '@modules/records/entities';
 import { User } from '@modules/users/entities';
+import { OrganizationUser } from './organization-user.entity';
 
 /**
  * The tenant. Every provider connection and every canonical spend-analytics
@@ -169,4 +170,7 @@ export class Organization extends BaseEntity {
 
   @OneToMany(() => User, (user) => user.organization)
   users: User[];
+
+  @OneToMany(() => OrganizationUser, (membership) => membership.organization)
+  memberships: OrganizationUser[];
 }

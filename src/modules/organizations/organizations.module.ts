@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from '@modules/auth/auth.module';
 import { UsersModule } from '@modules/users/users.module';
-import { Organization } from './entities';
+import { Organization, OrganizationUser } from './entities';
 import { OrganizationsController } from './organizations.controller';
 import {
   OrganizationProfileService,
@@ -23,7 +23,11 @@ import {
  * redeclaring a repository for it.
  */
 @Module({
-  imports: [TypeOrmModule.forFeature([Organization]), UsersModule, AuthModule],
+  imports: [
+    TypeOrmModule.forFeature([Organization, OrganizationUser]),
+    UsersModule,
+    AuthModule,
+  ],
   controllers: [OrganizationsController],
   providers: [
     OrganizationsService,

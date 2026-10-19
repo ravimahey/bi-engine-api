@@ -29,6 +29,7 @@ export enum SupportRequestStatus {
  * organization" index was dropped in `AllowMultipleSupportUsersPerOrg`.)
  */
 @Entity({ name: 'support_requests' })
+@Index('idx_support_requests_requester_org_pending', { synchronize: false })
 export class SupportRequest extends BaseEntity {
   @ApiProperty({ format: 'uuid' })
   @Index('idx_support_requests_requester_id')

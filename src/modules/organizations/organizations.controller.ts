@@ -89,6 +89,16 @@ export class OrganizationsController {
     return organization;
   }
 
+  @Get('my-organizations')
+  @ResponseMessage('User organizations fetched successfully')
+  @ApiOperation({
+    summary: 'List all organizations the authenticated user belongs to',
+  })
+  @ApiOkResponse({ type: Organization, isArray: true })
+  getMyOrganizations(@CurrentUser() user: AuthenticatedUser) {
+    return this.organizationsService.getUserOrganizations(user.id);
+  }
+
   @Roles(UserRole.ADMIN)
   @ApiForbiddenResponse({ description: 'Admin role required' })
   @Get()

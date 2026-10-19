@@ -114,6 +114,23 @@ export class ProviderConnectionsService {
     return connection;
   }
 
+  /**
+   * Finds the most recently updated connection for a provider across all tenants,
+   * tokens included — fallback for single-session / admin callers.
+   */
+  async findLatestWithTokensOrNull(
+    provider: ProviderType,
+  ): Promise<ProviderConnection | null> {
+    return this.connections.findOne({
+      where: {
+        provider,
+        status: ConnectionStatus.CONNECTED,
+      },
+      order: { updatedAt: 'DESC' },
+      select: TOKEN_COLUMNS,
+    });
+  }
+
   /** Creates the connection on first OAuth consent, or rotates tokens on every refresh since. */
   async upsertTokens(
     input: UpsertProviderConnectionTokens,

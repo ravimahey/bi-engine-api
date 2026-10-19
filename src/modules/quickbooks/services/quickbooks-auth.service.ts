@@ -5,9 +5,8 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { InjectRepository } from '@nestjs/typeorm';
 import OAuthClient from 'intuit-oauth';
-import { Repository } from 'typeorm';
+import { TenantContext } from '@common/context';
 import type { AuthenticatedUser } from '@common/decorators';
 import {
   assertOwnOrganization,
@@ -20,7 +19,6 @@ import { ConnectionStatus, ProviderType } from '@modules/providers/entities';
 import { ProviderConnectionsService } from '@modules/providers/services';
 import { UserRole } from '@modules/users/entities';
 import { QuickbooksCallbackQueryDto } from '../dto';
-import { QuickbooksConnection } from '../entities';
 import type {
   QuickbooksConnectionStatus,
   QuickbooksSession,
@@ -33,15 +31,6 @@ const REFRESH_SKEW_MS = 60_000;
 
 /** `error` on the `intuit-oauth` rejection for a refresh token that is expired or revoked. */
 const INTUIT_INVALID_GRANT = 'invalid_grant';
-
-const TOKEN_COLUMNS = {
-  id: true,
-  realmId: true,
-  accessToken: true,
-  refreshToken: true,
-  accessTokenExpiresAt: true,
-  refreshTokenExpiresAt: true,
-} as const;
 
 /**
  * Owns the QuickBooks OAuth2 lifecycle: starting the consent flow,
@@ -57,8 +46,6 @@ export class QuickbooksAuthService {
 
   constructor(
     private readonly configService: ConfigService,
-    @InjectRepository(QuickbooksConnection)
-    private readonly connections: Repository<QuickbooksConnection>,
     private readonly providerConnections: ProviderConnectionsService,
   ) {
     const { quickbooks } = this.appConfig();
@@ -123,12 +110,36 @@ export class QuickbooksAuthService {
 
   /**
    * Returns a usable {realmId, accessToken} pair, refreshing first if the
-   * access token is at or past expiry. Single-tenant: this is the most
-   * recently connected company.
+   * access token is at or past expiry. Resolves from active TenantContext
+   * or the most recently connected QuickBooks provider connection.
    */
   async getSession(): Promise<QuickbooksSession> {
-    const connection = await this.currentConnection();
-    return { realmId: connection.realmId, accessToken: connection.accessToken };
+    const tenantId = TenantContext.getTenantId();
+    if (tenantId) {
+      return this.getSessionForOrganization(tenantId);
+    }
+
+    const connection =
+      await this.providerConnections.findLatestWithTokensOrNull(
+        ProviderType.QUICKBOOKS,
+      );
+    if (!connection) {
+      throw new UnauthorizedException(
+        'QuickBooks is not connected yet — visit /quickbooks/connect',
+      );
+    }
+
+    const refreshed = await this.refreshProviderConnection(connection);
+    if (!refreshed.accessToken) {
+      throw new UnauthorizedException(
+        'QuickBooks access token is missing — reconnect at /quickbooks/connect',
+      );
+    }
+
+    return {
+      realmId: refreshed.externalRealmId,
+      accessToken: refreshed.accessToken,
+    };
   }
 
   /**
@@ -320,46 +331,17 @@ export class QuickbooksAuthService {
     }
   }
 
-  /** The current connection's row, refreshed first if its access token is at or past expiry. */
-  private async currentConnection(): Promise<QuickbooksConnection> {
-    const [connection] = await this.connections.find({
-      order: { updatedAt: 'DESC' },
-      take: 1,
-      select: TOKEN_COLUMNS,
-    });
-
-    if (!connection) {
-      throw new UnauthorizedException(
-        'QuickBooks is not connected yet — visit /quickbooks/connect',
-      );
-    }
-
-    if (
-      connection.accessTokenExpiresAt.getTime() >
-      Date.now() + REFRESH_SKEW_MS
-    ) {
-      return connection;
-    }
-
-    return this.refresh(connection);
-  }
-
   /**
-   * Exchanges the callback URL for tokens, persists them into the legacy
-   * `quickbooks_connections` row keyed by realm (unchanged — still what
-   * `getSession()`/the interactive `/quickbooks/*` endpoints read), and
-   * immediately associates the same realm/tokens with the organization that
-   * started this flow (recovered from the signed `state`) by upserting its
-   * `ProviderConnection`. This is the fix: an organization is bound to its
-   * QuickBooks company right here, at connect time, from a value Intuit's
-   * own round trip can't have tampered with — not inferred later from
-   * whichever legacy connection happens to be most recently updated.
+   * Exchanges the callback URL for tokens, and persists them into the
+   * organization's `ProviderConnection` keyed by (organizationId, QUICKBOOKS).
+   * Intuit's verified externalRealmId and refreshed tokens are stored in the
+   * unified provider_connections table.
    */
   private async exchangeToken(
     callbackUrl: string,
     state: unknown,
     realmId: string,
-  ): Promise<QuickbooksConnection> {
+  ): Promise<ProviderConnection> {
     const stateClaims = parseOAuthState(state, this.stateSecret());
     if (!stateClaims) {
       throw new UnauthorizedException(
@@ -374,61 +356,19 @@ export class QuickbooksAuthService {
 
     const authResponse = await this.oauthClient.createToken(callbackUrl);
     const token = authResponse.getJson() as QuickbooksTokenResponse;
+    const now = Date.now();
 
-    const connection =
-      (await this.connections.findOneBy({ realmId })) ??
-      this.connections.create({ realmId });
-
-    this.applyToken(connection, token);
-    const saved = await this.connections.save(connection);
-
-    await this.providerConnections.upsertTokens({
+    return this.providerConnections.upsertTokens({
       organizationId: stateClaims.organizationId,
       provider: ProviderType.QUICKBOOKS,
-      externalRealmId: saved.realmId,
-      accessToken: saved.accessToken,
-      refreshToken: saved.refreshToken,
-      accessTokenExpiresAt: saved.accessTokenExpiresAt,
-      refreshTokenExpiresAt: saved.refreshTokenExpiresAt,
+      externalRealmId: realmId,
+      accessToken: token.access_token,
+      refreshToken: token.refresh_token,
+      accessTokenExpiresAt: new Date(now + token.expires_in * 1000),
+      refreshTokenExpiresAt: new Date(
+        now + token.x_refresh_token_expires_in * 1000,
+      ),
     });
-
-    return saved;
-  }
-
-  private async refresh(
-    connection: QuickbooksConnection,
-  ): Promise<QuickbooksConnection> {
-    try {
-      const refreshResponse = await this.oauthClient.refreshUsingToken(
-        connection.refreshToken,
-      );
-      const token = refreshResponse.getJson() as QuickbooksTokenResponse;
-
-      this.applyToken(connection, token);
-      return await this.connections.save(connection);
-    } catch (error) {
-      this.logger.error(
-        `QuickBooks token refresh failed: ${(error as Error).message}`,
-        (error as Error).stack,
-      );
-      throw new UnauthorizedException(
-        'QuickBooks session expired — reconnect at /quickbooks/connect',
-      );
-    }
-  }
-
-  /** Copies a fresh token response onto the entity. Refresh tokens rotate — always overwrite. */
-  private applyToken(
-    connection: QuickbooksConnection,
-    token: QuickbooksTokenResponse,
-  ): void {
-    const now = Date.now();
-    connection.accessToken = token.access_token;
-    connection.refreshToken = token.refresh_token;
-    connection.accessTokenExpiresAt = new Date(now + token.expires_in * 1000);
-    connection.refreshTokenExpiresAt = new Date(
-      now + token.x_refresh_token_expires_in * 1000,
-    );
   }
 
   /** Signing key for the OAuth CSRF state — a secret already scoped to this integration. */

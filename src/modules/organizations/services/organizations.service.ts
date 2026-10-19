@@ -17,7 +17,12 @@ import {
   QueryOrganizationsDto,
   UpdateOrganizationDto,
 } from '../dto';
-import { Organization } from '../entities';
+import {
+  Organization,
+  OrganizationRole,
+  OrganizationUser,
+  OrganizationUserStatus,
+} from '../entities';
 import type { CreateOrganizationResult } from '../types';
 import { OrganizationProfileService } from './organization-profile.service';
 import { OrganizationSlugService } from './organization-slug.service';
@@ -36,6 +41,8 @@ export class OrganizationsService {
   constructor(
     @InjectRepository(Organization)
     private readonly organizationsRepository: Repository<Organization>,
+    @InjectRepository(OrganizationUser)
+    private readonly organizationUsersRepository: Repository<OrganizationUser>,
     private readonly usersService: UsersService,
     private readonly authTokenService: AuthTokenService,
     private readonly profileService: OrganizationProfileService,
@@ -86,6 +93,15 @@ export class OrganizationsService {
     const saved = await this.organizationsRepository.save(organization);
     this.logger.log(`Created organization ${saved.id}`);
 
+    // Create the organization membership record for the creator as OWNER
+    const membership = this.organizationUsersRepository.create({
+      organizationId: saved.id,
+      userId: currentUser.id,
+      role: OrganizationRole.OWNER,
+      status: OrganizationUserStatus.ACTIVE,
+    });
+    await this.organizationUsersRepository.save(membership);
+
     if (!isSelfServe) {
       return { organization: saved };
     }
@@ -97,6 +113,28 @@ export class OrganizationsService {
     const session = await this.authTokenService.startSession(linkedUser);
 
     return { organization: saved, tokens: session.tokens };
+  }
+
+  /** Lists all organizations the given user has active membership in. */
+  async getUserOrganizations(userId: string) {
+    const memberships = await this.organizationUsersRepository.find({
+      where: { userId, status: OrganizationUserStatus.ACTIVE },
+      relations: { organization: true },
+    });
+
+    return memberships.map((m) => ({
+      ...m.organization,
+      membershipRole: m.role,
+      membershipStatus: m.status,
+    }));
+  }
+
+  /** Checks if a user has an active membership in the target organization. */
+  async isUserMember(organizationId: string, userId: string): Promise<boolean> {
+    const count = await this.organizationUsersRepository.count({
+      where: { organizationId, userId, status: OrganizationUserStatus.ACTIVE },
+    });
+    return count > 0;
   }
 
   async findAll(

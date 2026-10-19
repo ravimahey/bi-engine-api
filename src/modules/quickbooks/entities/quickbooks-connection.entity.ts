@@ -13,7 +13,7 @@ import { BaseEntity } from '@common/entities';
  * `User.hashedRefreshToken` — they never come back from a default query and
  * never get serialized to a client even if explicitly selected.
  */
-@Entity({ name: 'quickbooks_connections' })
+@Entity({ name: 'quickbooks_connections', synchronize: false })
 export class QuickbooksConnection extends BaseEntity {
   @Index('idx_quickbooks_connections_realm_id', { unique: true })
   @Column({ type: 'varchar', length: 100, name: 'realm_id', unique: true })

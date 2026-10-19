@@ -54,6 +54,7 @@ export enum SignalDismissedBy {
  * migration as raw SQL (a `WHERE` index, same as `support_requests`).
  */
 @Entity({ name: 'signals' })
+@Index('idx_signals_dedup_active', { synchronize: false })
 // Query shapes: the feed (org + status filter, newest first) and the unread count.
 @Index('idx_signals_org_status_created', [
   'organizationId',
