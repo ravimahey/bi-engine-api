@@ -86,9 +86,44 @@ export class SignalsService {
       );
     }
 
-    return this.signals.findOne({
+    const existing = await this.signals.findOne({
       where: { ...key, status: In(ACTIVE_SIGNAL_STATUSES) },
     });
+
+    if (existing) {
+      const newTitle = input.title?.trim() || definition.title;
+      const newMessage = input.message.trim();
+      if (existing.title !== newTitle || existing.message !== newMessage) {
+        existing.title = newTitle;
+        existing.message = newMessage;
+        await this.signals.update(existing.id, {
+          title: newTitle,
+          message: newMessage,
+          createdAt: new Date(),
+        });
+      }
+      if (input.metadata) {
+        existing.metadata = input.metadata;
+      }
+    }
+
+    return existing;
+  }
+
+  async findById(signalId: string): Promise<Signal | null> {
+    return this.signals.findOne({ where: { id: signalId } });
+  }
+
+  async updateMetadata(
+    signalId: string,
+    metadata: Record<string, any>,
+  ): Promise<Signal> {
+    const signal = await this.signals.findOne({ where: { id: signalId } });
+    if (!signal) {
+      throw new Error(`Signal not found: ${signalId}`);
+    }
+    signal.metadata = metadata;
+    return signal;
   }
 
   /**

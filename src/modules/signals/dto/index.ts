@@ -2,3 +2,7 @@ export * from './query-signals.dto';
 export * from './signal-count.dto';
 export * from './signal-feed.dto';
 export * from './update-signal.dto';
+export * from './price-clarification.dto';
+export * from './price-negotiation.dto';
+export * from './revised-agreement.dto';
+export * from './verify-invoice.dto';

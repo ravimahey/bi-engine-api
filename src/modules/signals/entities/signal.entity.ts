@@ -115,4 +115,7 @@ export class Signal extends BaseEntity {
   @ApiProperty({ required: false, nullable: true })
   @Column({ type: 'timestamptz', name: 'dismissed_at', nullable: true })
   dismissedAt: Date | null;
+
+  @ApiProperty({ required: false, nullable: true })
+  metadata?: Record<string, any> | null;
 }

@@ -3,19 +3,21 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import type { AuthenticatedUser } from '@common/decorators';
 import { ACTIVE_SIGNAL_STATUSES } from '../constants';
 import { QuerySignalsDto, SignalCountDto } from '../dto';
-import { Signal, SignalDismissedBy, SignalStatus } from '../entities';
+import { Signal, SignalDismissedBy, SignalStatus, SignalType } from '../entities';
 import type { SignalFeedPage } from '../types';
 import {
   decodeSignalCursor,
   encodeSignalCursor,
   signalCursorTimestampSql,
 } from '../utils';
+import { SupplierPriceIncreaseService } from './supplier-price-increase.service';
 
 const CURSOR_COLUMN = 'cursor_created_at';
 
@@ -30,6 +32,8 @@ export class SignalsFeedService {
   constructor(
     @InjectRepository(Signal)
     private readonly signals: Repository<Signal>,
+    @Optional()
+    private readonly priceIncreaseService?: SupplierPriceIncreaseService,
   ) {}
 
   /**
@@ -85,6 +89,42 @@ export class SignalsFeedService {
     const items = hasMore ? entities.slice(0, query.limit) : entities;
     const last = items.length - 1;
 
+    if (this.priceIncreaseService) {
+      for (const item of items) {
+        if (item.type === SignalType.COST_INCREASE) {
+          const evidence = await this.priceIncreaseService.getEvidenceForSignal(item);
+          if (evidence) {
+            item.metadata = evidence;
+          }
+        }
+      }
+    }
+
+    // Ensure the latest signal (newest invoice/bill date, or highest recent price increase) is at the top
+    items.sort((a, b) => {
+      const metaA = a.metadata as Record<string, any> | undefined;
+      const metaB = b.metadata as Record<string, any> | undefined;
+
+      const timeA = metaA?.invoiceDate
+        ? new Date(metaA.invoiceDate).getTime()
+        : new Date(a.createdAt).getTime();
+      const timeB = metaB?.invoiceDate
+        ? new Date(metaB.invoiceDate).getTime()
+        : new Date(b.createdAt).getTime();
+
+      if (timeB !== timeA) {
+        return timeB - timeA;
+      }
+
+      const priceA = Number(metaA?.invoicePrice ?? 0);
+      const priceB = Number(metaB?.invoicePrice ?? 0);
+      if (priceB !== priceA) {
+        return priceB - priceA;
+      }
+
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+
     return {
       items,
       nextCursor: hasMore
@@ -102,6 +142,18 @@ export class SignalsFeedService {
       where: { organizationId, status: SignalStatus.UNREAD },
     });
     return { unread };
+  }
+
+  async getOne(user: AuthenticatedUser, id: string): Promise<Signal> {
+    const organizationId = this.requireOrganization(user);
+    const signal = await this.findOwned(id, organizationId);
+    if (this.priceIncreaseService && signal.type === SignalType.COST_INCREASE) {
+      const evidence = await this.priceIncreaseService.getEvidenceForSignal(signal);
+      if (evidence) {
+        signal.metadata = evidence;
+      }
+    }
+    return signal;
   }
 
   /**

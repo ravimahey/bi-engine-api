@@ -1,6 +1,6 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Optional } from '@nestjs/common';
 import { SignalType } from '@modules/signals/entities';
-import { SignalsService } from '@modules/signals/services';
+import { SignalsService, SupplierPriceIncreaseService } from '@modules/signals/services';
 import type { CreateSignalInput } from '@modules/signals/types';
 import { MAX_DUPLICATE_SIGNALS } from '../constants';
 import {
@@ -39,6 +39,8 @@ export class FindingSignalsService {
     private readonly duplicateDetection: DuplicateDetectionService,
     private readonly dataQuality: DataQualityService,
     private readonly categoryPriceIncreases: CategoryPriceIncreaseScanService,
+    @Optional()
+    private readonly supplierPriceIncreases?: SupplierPriceIncreaseService,
   ) {}
 
   /**
@@ -50,6 +52,15 @@ export class FindingSignalsService {
     organizationId: string,
     today: Date = new Date(),
   ): Promise<void> {
+    if (this.supplierPriceIncreases) {
+      try {
+        await this.supplierPriceIncreases.detectPriceIncreases(organizationId);
+      } catch (error) {
+        this.logger.error(
+          `Could not detect supplier price increases for org ${organizationId}: ${(error as Error).message}`,
+        );
+      }
+    }
     await this.run(SignalType.COST_INCREASE, organizationId, () =>
       this.detectCostIncreases(organizationId, today),
     );

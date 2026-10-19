@@ -24,6 +24,60 @@ export interface SignalKey {
   sourceId: string;
 }
 
+export interface PriceNegotiationTimelineItem {
+  step: string;
+  actor: 'buyer' | 'seller' | 'system';
+  timestamp: string;
+  message: string;
+  price?: number;
+  savings?: number;
+}
+
+export interface PriceNegotiationState {
+  status:
+    | 'detected'
+    | 'clarification_requested'
+    | 'negotiating'
+    | 'revised_agreement'
+    | 'verified';
+  clarificationMessage?: string;
+  clarificationDate?: string;
+  sellerResponse?: string;
+  sellerResponseDate?: string;
+  sellerProposedPrice?: number;
+  agreedRevisedPrice?: number;
+  agreedDate?: string;
+  calculatedSavings?: number;
+  revisedInvoiceNumber?: string;
+  verifiedAt?: string;
+  verifiedBy?: string;
+  notes?: string;
+  timeline: PriceNegotiationTimelineItem[];
+}
+
+export interface PriceIncreaseEvidence {
+  vendorId: string;
+  vendorName: string;
+  itemId: string;
+  itemName: string;
+  invoiceId: string;
+  invoiceNumber: string;
+  invoiceDate: string;
+  lineId?: string;
+  quantity: number;
+  unit: string;
+  agreedPrice: number;
+  invoicePrice: number;
+  priceDifference: number;
+  priceIncreasePercent: number;
+  totalInvoiceAmount: number;
+  historicalAgreedTotal: number;
+  potentialAdditionalCost: number;
+  currency: string;
+  recommendedActions: string[];
+  negotiation?: PriceNegotiationState;
+}
+
 export interface CreateSignalInput extends SignalKey {
   /**
    * Short display text, already rendered by the producer from a fixed
@@ -33,6 +87,8 @@ export interface CreateSignalInput extends SignalKey {
   message: string;
   /** Overrides the registry's default title. */
   title?: string;
+  /** Rich supporting evidence payload (e.g. price increase comparison, invoices, negotiation state). */
+  metadata?: Record<string, any> | null;
 }
 
 export interface CreateSignalOptions {

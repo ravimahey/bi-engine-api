@@ -39,6 +39,7 @@ export interface QuickbooksItemPayload {
   Description?: string;
   Type: string;
   UnitPrice?: number;
+  PurchaseCost?: number;
   Active?: boolean;
 }
 

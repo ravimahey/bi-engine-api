@@ -141,7 +141,10 @@ export class QuickbooksMasterDataMapperService {
         name: raw.Name,
         description: raw.Description ?? null,
         itemType: ITEM_TYPE_BY_QUICKBOOKS_TYPE[raw.Type] ?? ItemType.SERVICE,
-        unitPrice: raw.UnitPrice != null ? String(raw.UnitPrice) : null,
+        unitPrice:
+          (raw.PurchaseCost ?? raw.UnitPrice) != null
+            ? String(raw.PurchaseCost ?? raw.UnitPrice)
+            : null,
         currency: DEFAULT_CURRENCY,
         isActive: raw.Active ?? true,
       });

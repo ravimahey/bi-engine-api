@@ -265,8 +265,13 @@ export class QuickbooksPollingService {
       providerConnectionId,
       entity,
     );
+    // Resume from existingCursor only if it represents an in-progress range (before exclusiveEndDate).
+    // If the cursor already reached or passed exclusiveEndDate, this is a re-poll for fresh/updated
+    // data — start from fromDate so newly added or modified transactions in the window are fetched.
     const effectiveStart =
-      existingCursor && existingCursor.cursor > fromDate
+      existingCursor &&
+      existingCursor.cursor > fromDate &&
+      existingCursor.cursor < exclusiveEndDate
         ? existingCursor.cursor
         : fromDate;
 
