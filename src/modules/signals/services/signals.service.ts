@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Not, Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { ACTIVE_SIGNAL_STATUSES, SIGNAL_TYPES } from '../constants';
-import { Signal, SignalDismissedBy, SignalStatus } from '../entities';
+import { Signal, SignalDismissedBy, SignalStatus, SignalType } from '../entities';
 import type {
   CreateSignalInput,
   CreateSignalOptions,
@@ -41,7 +41,7 @@ export class SignalsService {
    */
   async createSignal(
     input: CreateSignalInput,
-    options: CreateSignalOptions = {},
+    _options: CreateSignalOptions = {},
   ): Promise<Signal | null> {
     const definition = SIGNAL_TYPES[input.type];
     if (!definition) {
@@ -53,19 +53,30 @@ export class SignalsService {
 
     const key = this.toWhere(input);
 
-    if (
-      options.skipIfUserDismissed &&
-      (await this.signals.exists({
-        where: {
-          ...key,
-          status: SignalStatus.DISMISSED,
-          dismissedBy: SignalDismissedBy.USER,
-        },
-      }))
-    ) {
-      return null;
+    // Check if ANY signal already exists for this source record in this organization:
+    const existing = await this.signals.findOne({
+      where: key,
+      order: { createdAt: 'DESC' },
+    });
+
+    if (existing) {
+      // 1. If it was dismissed (by user or closed): DO NOT RE-CREATE ON SYNC!
+      // Once dismissed, it stays dismissed.
+      if (existing.status === SignalStatus.DISMISSED) {
+        return null;
+      }
+
+      // 2. If it is active (unread or in Needs Attention / read):
+      // SKIP OVERWRITE completely! Preserve its existing status, metadata and original timestamp!
+      if (existing.status === SignalStatus.UNREAD || existing.status === SignalStatus.READ) {
+        if (input.metadata) {
+          existing.metadata = input.metadata;
+        }
+        return existing;
+      }
     }
 
+    // 3. Genuinely new signal — insert into PostgreSQL
     const result = await this.signals
       .createQueryBuilder()
       .insert()
@@ -79,35 +90,21 @@ export class SignalsService {
       .orIgnore()
       .execute();
 
-    // Postgres returns the inserted row's generated columns — none on a conflict.
     if ((result.raw as unknown[]).length > 0) {
       this.logger.log(
         `Created ${input.type} signal for org ${input.organizationId} (source ${input.sourceId})`,
       );
     }
 
-    const existing = await this.signals.findOne({
+    const created = await this.signals.findOne({
       where: { ...key, status: In(ACTIVE_SIGNAL_STATUSES) },
     });
 
-    if (existing) {
-      const newTitle = input.title?.trim() || definition.title;
-      const newMessage = input.message.trim();
-      if (existing.title !== newTitle || existing.message !== newMessage) {
-        existing.title = newTitle;
-        existing.message = newMessage;
-        await this.signals.update(existing.id, {
-          title: newTitle,
-          message: newMessage,
-          createdAt: new Date(),
-        });
-      }
-      if (input.metadata) {
-        existing.metadata = input.metadata;
-      }
+    if (created && input.metadata) {
+      created.metadata = input.metadata;
     }
 
-    return existing;
+    return created;
   }
 
   async findById(signalId: string): Promise<Signal | null> {
@@ -146,18 +143,38 @@ export class SignalsService {
    * every active signal of `type` whose source is no longer in that set.
    */
   async resolveStaleSignals(input: ResolveStaleSignalsInput): Promise<number> {
-    const result = await this.signals.update(
-      {
+    const qb = this.signals
+      .createQueryBuilder()
+      .update(Signal)
+      .set(this.systemDismissal())
+      .where('organization_id = :organizationId', {
         organizationId: input.organizationId,
-        type: input.type,
+      })
+      .andWhere('type = :type', { type: input.type })
+      .andWhere('source_type = :sourceType', {
         sourceType: SIGNAL_TYPES[input.type].sourceType,
-        status: In(ACTIVE_SIGNAL_STATUSES),
-        ...(input.activeSourceIds.length > 0
-          ? { sourceId: Not(In(input.activeSourceIds)) }
-          : {}),
-      },
-      this.systemDismissal(),
-    );
+      })
+      .andWhere('status IN (:...statuses)', {
+        statuses: ACTIVE_SIGNAL_STATUSES,
+      });
+
+    if (input.activeSourceIds.length > 0) {
+      qb.andWhere('source_id NOT IN (:...activeSourceIds)', {
+        activeSourceIds: input.activeSourceIds,
+      });
+    }
+
+    // Protect supplier invoice-level price increase signals from being dismissed by category-level finding scans
+    if (input.type === SignalType.COST_INCREASE) {
+      qb.andWhere(
+        `source_id NOT IN (
+          SELECT id::text FROM expense_transactions WHERE organization_id = :organizationId
+        )`,
+        { organizationId: input.organizationId },
+      );
+    }
+
+    const result = await qb.execute();
     return result.affected ?? 0;
   }
 
