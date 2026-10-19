@@ -31,6 +31,7 @@ import {
   SignalFeedDto,
   UpdateSignalDto,
   VerifyInvoiceDto,
+  ResolveWithoutNegotiationDto,
 } from './dto';
 import { Signal } from './entities';
 import { SignalsFeedService, SupplierPriceIncreaseService } from './services';
@@ -178,5 +179,20 @@ export class SignalsController {
     @Body() dto: VerifyInvoiceDto,
   ): Promise<Signal> {
     return this.priceIncreaseService.verifyInvoice(user, id, dto);
+  }
+
+  @Post(':id/resolve-without-negotiation')
+  @ResponseMessage('Finding resolved directly without negotiation')
+  @ApiOperation({
+    summary:
+      'Directly resolve a supplier price increase finding without negotiations (e.g. accepted as valid contract rate or waived)',
+  })
+  @ApiOkResponse({ type: Signal })
+  resolveWithoutNegotiation(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param() { id }: IdParamDto,
+    @Body() dto: ResolveWithoutNegotiationDto,
+  ): Promise<Signal> {
+    return this.priceIncreaseService.resolveWithoutNegotiation(user, id, dto);
   }
 }

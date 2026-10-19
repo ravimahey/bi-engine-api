@@ -6,3 +6,4 @@ export * from './price-clarification.dto';
 export * from './price-negotiation.dto';
 export * from './revised-agreement.dto';
 export * from './verify-invoice.dto';
+export * from './resolve-without-negotiation.dto';

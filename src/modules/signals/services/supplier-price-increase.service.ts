@@ -24,6 +24,7 @@ import type {
   PriceNegotiationDto,
   RevisedAgreementDto,
   VerifyInvoiceDto,
+  ResolveWithoutNegotiationDto,
 } from '../dto';
 import type {
   PriceIncreaseEvidence,
@@ -541,6 +542,68 @@ export class SupplierPriceIncreaseService {
       revisedInvoiceNumber: negotiation.revisedInvoiceNumber,
       verifiedPrice,
       confirmedSavings: negotiation.calculatedSavings,
+    });
+
+    return signal;
+  }
+
+  /**
+   * Directly resolves a price increase finding without going through supplier negotiation.
+   * e.g. Accepted as valid contractual / CPI escalation, rush order fee waived, or manually approved.
+   */
+  async resolveWithoutNegotiation(
+    user: AuthenticatedUser,
+    signalId: string,
+    dto: ResolveWithoutNegotiationDto,
+  ): Promise<Signal> {
+    const signal = await this.getSignalAndAssertAccess(user, signalId);
+    let evidence = await this.getEvidenceForSignal(signal);
+
+    if (!evidence) {
+      evidence = (signal.metadata || {}) as PriceIncreaseEvidence;
+    }
+
+    const negotiation: PriceNegotiationState =
+      this.negotiationBySignalId.get(signalId) ||
+      evidence.negotiation || {
+        status: 'detected',
+        timeline: [],
+      };
+
+    negotiation.status = 'resolved_without_negotiation';
+    negotiation.resolutionReason = dto.reason;
+    negotiation.resolvedAt = new Date().toISOString();
+    negotiation.resolvedBy = user.id;
+    if (dto.notes) {
+      negotiation.notes = dto.notes;
+    }
+
+    negotiation.timeline.push({
+      step: 'Resolved Without Negotiation',
+      actor: 'buyer',
+      timestamp: new Date().toISOString(),
+      message: `Finding resolved directly without supplier negotiation. Reason: ${dto.reason}${dto.notes ? ` — ${dto.notes}` : ''}.`,
+    });
+
+    this.negotiationBySignalId.set(signalId, negotiation);
+    evidence.negotiation = negotiation;
+    this.evidenceBySignalId.set(signalId, evidence);
+    signal.metadata = evidence;
+
+    // Mark read on Signal entity in DB
+    await this.signalRepo.update(
+      { id: signal.id, organizationId: signal.organizationId },
+      { readAt: new Date() },
+    );
+
+    this.auditLog({
+      event: 'resolved_without_negotiation',
+      organizationId: signal.organizationId,
+      signalId: signal.id,
+      userId: user.id,
+      role: user.role,
+      reason: dto.reason,
+      notes: dto.notes,
     });
 
     return signal;

@@ -39,7 +39,11 @@ export interface PriceNegotiationState {
     | 'clarification_requested'
     | 'negotiating'
     | 'revised_agreement'
-    | 'verified';
+    | 'verified'
+    | 'resolved_without_negotiation';
+  resolutionReason?: string;
+  resolvedAt?: string;
+  resolvedBy?: string;
   clarificationMessage?: string;
   clarificationDate?: string;
   sellerResponse?: string;
